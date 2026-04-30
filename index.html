@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEUS — Personal Intelligence Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   ZEUS — ALD × PORSCHE DESIGN SYSTEM  v4.0  PRODUCTION
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --canvas:  #0e1c10;
+  --bg:      #0a0b09;
+  --bg1:     #0d0f0c;
+  --bg2:     #0f110e;
+  --bg3:     #131510;
+  --bg4:     #181a15;
+  --bg5:     #1d2019;
+  --border:  #1a2e1c;
+  --border2: #1e3620;
+  --border3: #253f28;
+  --cream:   #ede4cc;
+  --cream2:  #ccc0a0;
+  --cream3:  #8a7f68;
+  --cream4:  #504840;
+  --gold:    #c9983a;
+  --gold2:   #b8841e;
+  --gold3:   #6b480e;
+  --gold-bg: #110c02;
+  --gold-lit:#e4b84a;
+  --green:   #52b878;
+  --green2:  #3d8c5c;
+  --green3:  #1e4a32;
+  --green-bg:#080f0b;
+  --red:     #d44828;
+  --red2:    #a83418;
+  --red3:    #5a180a;
+  --red-bg:  #100503;
+  --amber:   #c98a3a;
+  --amber2:  #a06828;
+  --amber-bg:#100803;
+  --blue:    #5a8ec8;
+  --blue2:   #2d5a8a;
+  --blue-bg: #04080f;
+  --serif:   'Cormorant Garamond', Georgia, serif;
+  --mono:    'DM Mono', monospace;
+  --sans:    'Syne', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+body{background:var(--canvas);color:var(--cream);font-family:var(--mono);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:9999}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse-gold{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(201,152,58,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(201,152,58,0)}}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scan-line{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes live-border{0%,100%{border-color:var(--gold);box-shadow:0 0 6px rgba(201,152,58,.25)}50%{border-color:var(--gold2);box-shadow:0 0 14px rgba(201,152,58,.45)}}
+@keyframes go-ready{0%,100%{box-shadow:0 0 0 0 rgba(201,152,58,.4)}50%{box-shadow:0 0 18px 3px rgba(201,152,58,.18)}}
+@keyframes ald-flicker{0%,100%{opacity:1}94%{opacity:1}95%{opacity:.82}97%{opacity:1}99%{opacity:.88}}
+@keyframes shimmer{0%{background-position:-400% 0}100%{background-position:400% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slide-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── API KEY GATE ── */
+#apiGate{position:fixed;inset:0;background:var(--canvas);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px}
+#apiGate.hidden{display:none}
+.gate-card{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:36px 40px;max-width:440px;width:100%;box-shadow:0 16px 64px rgba(0,0,0,.6)}
+.gate-logo{font-family:var(--serif);font-style:italic;font-size:32px;color:var(--gold);letter-spacing:.18em;text-align:center;margin-bottom:6px;animation:ald-flicker 10s infinite}
+.gate-sub{font-family:var(--mono);font-size:8px;color:var(--cream4);letter-spacing:.22em;text-align:center;text-transform:uppercase;margin-bottom:28px}
+.gate-label{font-family:var(--mono);font-size:8px;color:var(--cream4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+.gate-input{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--cream);outline:none;margin-bottom:14px;letter-spacing:.04em}
+.gate-input:focus{border-color:var(--gold3)}
+.gate-btn{width:100%;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;padding:10px;border-radius:2px;border:1px solid var(--gold3);background:var(--gold-bg);color:var(--gold);cursor:pointer;transition:all .2s}
+.gate-btn:hover{background:var(--gold3);color:var(--cream)}
+.gate-note{font-family:var(--mono);font-size:8px;color:var(--cream4);text-align:center;letter-spacing:.06em;margin-top:10px;line-height:1.7}
+.gate-err{font-family:var(--mono);font-size:9px;color:var(--red);text-align:center;margin-top:8px;display:none}
+
+/* ── TOP BAR ── */
+#topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;height:50px;background:var(--bg1);border-bottom:1px solid var(--border);box-shadow:0 1px 0 rgba(201,152,58,.1),0 4px 24px rgba(0,0,0,.6);padding:0 18px}
+.tb-logo{display:flex;align-items:center;gap:11px;margin-right:32px;animation:ald-flicker 12s infinite}
+.zeus-glyph{width:28px;height:28px;border:1px solid var(--gold3);border-radius:2px;display:flex;align-items:center;justify-content:center;background:var(--gold-bg);position:relative}
+.zeus-glyph::before{content:'';position:absolute;width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse-gold 2.5s infinite}
+.zeus-wordmark{display:flex;flex-direction:column;gap:1px}
+.zeus-name{font-family:var(--serif);font-weight:500;font-size:17px;letter-spacing:.22em;color:var(--gold);line-height:1;font-style:italic}
+.zeus-sub{font-family:var(--mono);font-size:7px;letter-spacing:.22em;color:var(--cream4);text-transform:uppercase;line-height:1;margin-top:3px}
+.tb-tabs{display:flex;gap:1px;flex:1;justify-content:center;border-left:1px solid var(--border);border-right:1px solid var(--border);margin:0 24px;padding:0 24px}
+.tb-tab{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--cream4);background:none;border:none;cursor:pointer;padding:0 22px;height:50px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;text-transform:uppercase}
+.tb-tab:hover{color:var(--cream2)}
+.tb-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tb-right{display:flex;align-items:center;gap:14px}
+.mode-btn{font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:4px 12px;border-radius:2px;border:1px solid var(--border3);background:transparent;color:var(--cream4);cursor:pointer;transition:all .2s;text-transform:uppercase}
+.mode-btn.live{color:var(--gold);border-color:var(--gold3);animation:live-border 2.5s infinite}
+.mode-dropdown{position:absolute;top:54px;right:18px;background:var(--bg2);border:1px solid var(--border2);border-radius:3px;padding:8px;min-width:220px;z-index:200;display:none;box-shadow:0 8px 32px rgba(0,0,0,.7);animation:slide-in .15s ease}
+.mode-dropdown.open{display:block}
+.mode-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:2px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--cream3);transition:background .15s;text-transform:uppercase}
+.mode-opt:hover{background:var(--bg4)}
+.conn-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.con-on{background:var(--gold);animation:pulse-dot 2s infinite}
+.con-off{background:var(--cream4)}
+.tb-div{width:1px;height:22px;background:var(--border2)}
+.tb-clock{font-family:var(--mono);font-size:10px;color:var(--cream4);letter-spacing:.08em;white-space:nowrap}
+.api-status-btn{font-family:var(--mono);font-size:8px;letter-spacing:.12em;padding:3px 9px;border-radius:2px;border:1px solid var(--gold3);background:var(--gold-bg);color:var(--gold);cursor:pointer;text-transform:uppercase}
+
+/* ── TICKER ── */
+#ticker{height:26px;overflow:hidden;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.tick-inner{display:flex;white-space:nowrap;animation:marquee 50s linear infinite}
+.ti{font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:0 16px;color:var(--cream4);display:flex;align-items:center;gap:5px}
+.ti .v{color:var(--cream2)}.ti .up{color:var(--gold)}.ti .dn{color:var(--red)}.ti .fl{color:var(--amber2)}
+.t-sep{color:var(--border3);font-size:9px}
+
+/* ── LAYOUT ── */
+#main{padding:10px;height:calc(100vh - 76px);overflow:hidden}
+.tab-view{display:none;height:100%}
+.tab-view.active{display:block}
+.g65-35{display:grid;grid-template-columns:65fr 35fr;gap:10px;height:100%}
+.g55-45{display:grid;grid-template-columns:55fr 45fr;gap:10px;height:100%}
+.g60-40{display:grid;grid-template-columns:60fr 40fr;gap:10px;height:100%}
+.col{display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-right:4px;height:100%}
+
+/* ── PANELS ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:3px;overflow:hidden;animation:fadeUp .45s ease both;box-shadow:0 2px 8px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(14,28,16,.5)}
+.panel:nth-child(1){animation-delay:.04s}.panel:nth-child(2){animation-delay:.09s}
+.panel:nth-child(3){animation-delay:.14s}.panel:nth-child(4){animation-delay:.19s}
+.panel:nth-child(5){animation-delay:.24s}.panel:nth-child(6){animation-delay:.29s}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);background:var(--bg3);border-top:1px solid rgba(201,152,58,.07)}
+.pt{font-family:var(--mono);font-size:8px;letter-spacing:.22em;color:var(--cream4);text-transform:uppercase}
+.pb{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:1px;background:var(--bg4);border:1px solid var(--border2);color:var(--cream4);letter-spacing:.1em}
+.pb.gold{color:var(--gold);border-color:var(--gold3)}
+.pb.green{color:var(--green);border-color:var(--green3)}
+.pb.red{color:var(--red);border-color:var(--red3)}
+.pb.blue{color:var(--blue);border-color:var(--blue2)}
+.pd{padding:12px}
+.sl{font-family:var(--mono);font-size:7px;letter-spacing:.2em;color:var(--cream4);text-transform:uppercase;margin-bottom:5px}
+.divider{height:1px;background:var(--border);margin:8px 0}
+
+/* ── DAILY PULSE ── */
+.wx-row{display:flex;align-items:center;gap:14px;padding:9px 11px;margin-bottom:9px;background:var(--bg4);border:1px solid var(--border2);border-radius:2px}
+.wx-temp{font-family:var(--serif);font-weight:300;font-size:32px;color:var(--gold);line-height:1}
+.wx-desc{font-family:var(--mono);font-size:10px;color:var(--cream2)}
+.wx-sub{display:flex;gap:12px;margin-top:3px}
+.wx-sub span{font-family:var(--mono);font-size:9px;color:var(--cream4)}
+.s-pill{display:flex;align-items:center;gap:10px;padding:6px 11px;margin-bottom:5px;background:var(--green-bg);border:1px solid var(--green3);border-radius:2px}
+.s-tag{font-family:var(--mono);font-size:8px;color:var(--cream4);letter-spacing:.14em;flex:0 0 54px;text-transform:uppercase}
+.s-val{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.04em}
+.p-label{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px}
+.p-inp{background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:7px 10px;font-family:var(--serif);font-style:italic;font-size:13px;color:var(--cream);width:100%;outline:none;transition:border-color .2s}
+.p-inp:focus{border-color:var(--gold3)}
+.cal-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:9px}
+.cal-d{background:var(--bg4);border:1px solid var(--border);border-radius:2px;padding:6px 4px;text-align:center}
+.cal-d.today{border-color:var(--gold3);background:var(--gold-bg)}
+.cdn{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.06em;margin-bottom:2px}
+.cdd{font-family:var(--serif);font-size:16px;color:var(--cream2);line-height:1}
+.cal-d.today .cdd{color:var(--gold)}
+.cde{font-family:var(--mono);font-size:7px;color:var(--green);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── TRADE DESK ── */
+.price-hero{display:flex;align-items:baseline;gap:12px;margin-bottom:9px}
+.p-big{font-family:var(--serif);font-weight:300;font-size:34px;color:var(--cream);letter-spacing:.02em;line-height:1}
+.p-chg{font-family:var(--mono);font-size:11px}
+.p-up{color:var(--gold)}.p-dn{color:var(--red)}
+.chart-wrap{height:110px;margin-bottom:10px}
+.htf-row{display:flex;gap:4px;margin-bottom:9px}
+.htf{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:5px 11px;border-radius:2px;border:1px solid var(--border2);background:transparent;color:var(--cream4);cursor:pointer;transition:all .15s;text-transform:uppercase}
+.htf.bull.on{background:var(--green-bg);border-color:var(--green3);color:var(--green)}
+.htf.bear.on{background:var(--red-bg);border-color:var(--red3);color:var(--red)}
+.htf.neut.on{background:var(--amber-bg);border-color:var(--amber2);color:var(--amber)}
+.smc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px}
+.sf{display:flex;flex-direction:column;gap:2px}
+.sfl{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.14em;text-transform:uppercase}
+.sfi{background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:5px 8px;font-family:var(--mono);font-size:11px;color:var(--cream2);width:100%;outline:none;transition:border-color .2s}
+.sfi:focus{border-color:var(--gold3);color:var(--cream)}
+.econ-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px}
+.econ-row:last-child{border-bottom:none}
+.imp{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.ih{background:var(--red)}.im{background:var(--gold)}.il{background:var(--cream4)}
+.et{color:var(--cream4);flex:0 0 46px}.en{color:var(--cream2);flex:1}.ep{color:var(--cream4)}
+.econ-row.past{opacity:.35}
+.chk-list{display:flex;flex-direction:column;gap:3px;margin-top:7px}
+.chk{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:2px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.chk:hover{background:var(--bg3)}
+.chk.on{background:var(--green-bg);border-color:var(--green3)}
+.chk-box{width:12px;height:12px;border:1px solid var(--border3);border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:8px;color:transparent;flex-shrink:0;transition:all .15s}
+.chk.on .chk-box{background:var(--green3);border-color:var(--green);color:var(--green)}
+.chk-txt{font-family:var(--mono);font-size:9px;color:var(--cream4)}
+.chk.on .chk-txt{color:var(--green)}
+.prog-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.prog-bar{flex:1;height:2px;background:var(--bg4);border-radius:1px;overflow:hidden}
+.prog-fill{height:100%;background:var(--gold);border-radius:1px;transition:width .3s}
+.prog-lbl{font-family:var(--mono);font-size:9px;color:var(--gold);white-space:nowrap}
+.go-btn{font-family:var(--mono);font-size:9px;letter-spacing:.22em;padding:8px;border-radius:2px;width:100%;margin-top:8px;border:1px solid var(--border3);background:var(--bg4);color:var(--cream4);cursor:pointer;transition:all .2s;text-transform:uppercase}
+.go-btn.ready{border-color:var(--gold3);background:var(--gold-bg);color:var(--gold);animation:go-ready 2.5s infinite}
+
+/* ── NEWS FEED ── */
+.news-card{padding:10px 0;border-bottom:1px solid var(--border);position:relative;overflow:hidden;cursor:pointer}
+.news-card:last-child{border-bottom:none}
+.news-card::after{content:'';position:absolute;left:0;right:0;height:1px;top:0;background:linear-gradient(90deg,transparent,var(--gold2),transparent);transform:translateX(-100%)}
+.news-card:hover::after{animation:scan-line .8s linear}
+.news-hl{font-family:var(--serif);font-size:14px;font-weight:400;color:var(--cream);margin-bottom:4px;line-height:1.35}
+.news-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:8px;color:var(--cream4);margin-bottom:4px;letter-spacing:.06em}
+.news-src{color:var(--gold2);text-decoration:none}
+.news-src:hover{color:var(--gold);text-decoration:underline}
+.news-sum{font-family:var(--mono);font-size:9px;color:var(--cream3);line-height:1.6}
+.n-tag{font-family:var(--mono);font-size:7px;letter-spacing:.12em;padding:2px 6px;border-radius:1px;text-transform:uppercase}
+.n-fin{background:var(--green-bg);border:1px solid var(--green3);color:var(--green)}
+.n-cry{background:var(--gold-bg);border:1px solid var(--gold3);color:var(--gold)}
+.n-ai{background:var(--blue-bg);border:1px solid var(--blue2);color:var(--blue)}
+.n-reg{background:var(--red-bg);border:1px solid var(--red3);color:var(--red)}
+.news-loading{text-align:center;padding:20px;font-family:var(--mono);font-size:9px;color:var(--cream4);letter-spacing:.1em}
+
+/* ── EQUITY SNAPSHOT ── */
+.eq-metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.eq-m{background:var(--bg4);border:1px solid var(--border);border-radius:2px;padding:8px 10px}
+.eq-mn{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.eq-mv{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--cream);line-height:1}
+.eq-mc{font-family:var(--mono);font-size:9px;margin-top:2px}
+.up{color:var(--gold)}.dn{color:var(--red)}.fl{color:var(--amber2)}
+.tk-row{display:flex;gap:5px;margin-bottom:8px}
+.tk-inp{flex:1;background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:6px 9px;font-family:var(--mono);font-size:11px;color:var(--cream);outline:none;text-transform:uppercase;letter-spacing:.1em}
+.tk-inp::placeholder{color:var(--cream4);font-size:9px;text-transform:none;letter-spacing:.06em}
+.tk-inp:focus{border-color:var(--gold3)}
+.tk-add{font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:6px 14px;border-radius:2px;border:1px solid var(--gold3);background:var(--gold-bg);color:var(--gold);cursor:pointer;white-space:nowrap;text-transform:uppercase}
+.eq-positions{display:flex;flex-direction:column;gap:4px}
+.eq-pos{display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--bg4);border:1px solid var(--border);border-radius:2px;transition:border-color .15s}
+.eq-pos:hover{border-color:var(--border3)}
+.eq-ticker{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--gold);flex:0 0 48px}
+.eq-price{font-family:var(--mono);font-size:10px;color:var(--cream);flex:0 0 62px}
+.eq-pct{font-family:var(--mono);font-size:9px;flex:0 0 46px}
+.eq-spark{flex:1;height:28px}
+.eq-del{background:none;border:none;color:var(--cream4);cursor:pointer;font-size:12px;padding:0 2px;opacity:.5}
+.eq-del:hover{color:var(--red);opacity:1}
+.eq-loading{font-family:var(--mono);font-size:8px;color:var(--cream4);text-align:center;padding:6px;letter-spacing:.1em}
+
+/* ── SYSTEM STATUS ── */
+.agent-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px}
+.agent-row:last-child{border-bottom:none}
+.a-name{flex:1;color:var(--cream2)}.a-st{display:flex;align-items:center;gap:5px}
+.a-meta{color:var(--cream4);font-size:8px}
+.sdot{width:5px;height:5px;border-radius:50%}
+
+/* ── WORKOUT ── */
+.wo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.day-tabs{display:flex;gap:2px;flex-wrap:wrap}
+.day-tab{font-family:var(--mono);font-size:8px;letter-spacing:.12em;padding:4px 9px;border-radius:2px;border:1px solid var(--border);background:transparent;color:var(--cream4);cursor:pointer;transition:all .15s;text-transform:uppercase}
+.day-tab:hover{color:var(--cream2)}
+.day-tab.active{color:var(--gold);border-color:var(--gold3);background:var(--gold-bg)}
+
+/* AI REFRESH BUTTON */
+.ai-refresh-btn{font-family:var(--mono);font-size:8px;letter-spacing:.12em;padding:5px 12px;border-radius:2px;border:1px solid var(--gold3);background:var(--gold-bg);color:var(--gold);cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px;text-transform:uppercase;flex-shrink:0}
+.ai-refresh-btn:hover{background:rgba(201,152,58,.15)}
+.ai-refresh-btn.loading{opacity:.7;cursor:wait}
+.ai-spinner{width:8px;height:8px;border:1px solid var(--gold3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;display:none}
+.ai-refresh-btn.loading .ai-spinner{display:inline-block}
+
+/* AI RESULT MODAL */
+#aiModal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px}
+#aiModal.open{display:flex}
+.ai-modal-card{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;max-width:860px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.7);animation:slide-in .2s ease}
+.ai-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.ai-modal-title{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)}
+.ai-modal-close{background:none;border:none;color:var(--cream4);cursor:pointer;font-size:18px;line-height:1}
+.ai-modal-close:hover{color:var(--cream)}
+.ai-modal-body{padding:18px;overflow-y:auto;flex:1}
+.ai-modal-loading{text-align:center;padding:40px;font-family:var(--mono);font-size:9px;color:var(--cream4);letter-spacing:.14em}
+.ai-modal-loading .spinner{width:24px;height:24px;border:2px solid var(--border3);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 14px}
+.ai-result{font-family:var(--mono);font-size:10px;color:var(--cream2);line-height:1.8;white-space:pre-wrap;letter-spacing:.02em}
+.ai-apply-btn{font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;padding:8px 20px;border-radius:2px;border:1px solid var(--green3);background:var(--green-bg);color:var(--green);cursor:pointer;margin-top:14px;transition:all .2s}
+.ai-apply-btn:hover{background:var(--green3)}
+
+.wo-title{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--cream2);margin-bottom:8px}
+.ex-table{width:100%;border-collapse:collapse}
+.ex-table th{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.14em;text-align:left;padding:4px 5px;border-bottom:1px solid var(--border);text-transform:uppercase}
+.ex-table td{font-family:var(--mono);font-size:9px;color:var(--cream2);padding:5px 5px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ex-row{cursor:pointer;transition:background .15s}
+.ex-row:hover{background:var(--bg3)}
+.ex-row.done{background:var(--green-bg)}
+.ex-row.done td{color:var(--green)}
+.ex-cb-w{display:flex;align-items:center;justify-content:center}
+.ex-cb{width:12px;height:12px;border:1px solid var(--border3);border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:7px;color:transparent}
+.ex-row.done .ex-cb{background:var(--green3);border-color:var(--green);color:var(--green)}
+.ex-nm{color:var(--cream);font-size:10px;font-family:var(--serif)}
+.ex-li{background:var(--bg4);border:1px solid var(--border2);border-radius:1px;padding:2px 5px;font-family:var(--mono);font-size:9px;color:var(--cream2);width:58px;outline:none}
+.set-p{height:3px;background:var(--bg4);border-radius:1px;width:36px}
+.set-pf{height:100%;background:var(--gold);border-radius:1px}
+
+/* ── BJJ ── */
+.belt-wrap{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.belt-vis{display:flex;align-items:center;gap:2px}
+.belt-bar{width:36px;height:11px;background:#4a1f7a;border-radius:1px}
+.belt-stripe{width:3px;height:11px;background:var(--gold);border-radius:1px;margin-left:2px}
+.belt-lbl{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--cream2)}
+.bjj-ta{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:8px 10px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--cream);outline:none;resize:vertical;min-height:56px;margin-bottom:7px}
+.pos-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+.pos-tag{font-family:var(--mono);font-size:7px;letter-spacing:.12em;padding:3px 8px;border-radius:1px;border:1px solid var(--border2);background:transparent;color:var(--cream4);cursor:pointer;transition:all .15s;text-transform:uppercase}
+.pos-tag.on{background:var(--blue-bg);border-color:var(--blue2);color:var(--blue)}
+.log-btn{font-family:var(--mono);font-size:8px;letter-spacing:.18em;padding:6px 14px;border-radius:2px;border:1px solid var(--green3);background:var(--green-bg);color:var(--green);cursor:pointer;margin-bottom:9px;text-transform:uppercase}
+.yt-lbl-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.yt-lbl{font-family:var(--mono);font-size:7px;color:var(--red2);letter-spacing:.18em;text-transform:uppercase}
+.yt-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.yt-card{background:var(--bg4);border:1px solid var(--border);border-radius:2px;overflow:hidden;text-decoration:none;cursor:pointer;transition:border-color .2s;display:block}
+.yt-card:hover{border-color:var(--red3)}
+.yt-thumb{width:100%;height:58px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.yt-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)}
+.yt-play-ic{width:20px;height:20px;border-radius:50%;background:rgba(212,72,40,.85);display:flex;align-items:center;justify-content:center;font-size:7px;color:white}
+.yt-info{padding:5px 7px 6px}
+.yt-nm{font-family:var(--serif);font-size:10px;color:var(--cream);line-height:1.3;margin-bottom:2px}
+.yt-ch{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.06em}
+.bjj-history{display:flex;flex-direction:column;gap:4px}
+.bjj-entry{background:var(--bg4);border:1px solid var(--border);border-radius:2px;padding:7px 9px}
+.bjj-ed{font-family:var(--mono);font-size:8px;color:var(--cream4);margin-bottom:3px;letter-spacing:.06em}
+.bjj-et{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:3px}
+.bjj-tag{font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:1px;background:var(--blue-bg);border:1px solid var(--blue2);color:var(--blue)}
+.bjj-en{font-family:var(--serif);font-size:12px;color:var(--cream2);line-height:1.4}
+
+/* ── MACRO RINGS ── */
+.macro-rings{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ring-svg{width:78px;height:78px}
+.ring-bg{fill:none;stroke:var(--bg4);stroke-width:7}
+.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:220}
+.ring-lbl{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.14em;text-transform:uppercase}
+.ring-rem{font-family:var(--mono);font-size:8px;color:var(--cream4)}
+
+/* ── FOOD LOGGER ── */
+.food-sel{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:6px 9px;font-family:var(--mono);font-size:10px;color:var(--cream2);outline:none;margin-bottom:7px}
+.add-food-btn{font-family:var(--mono);font-size:8px;letter-spacing:.18em;padding:6px 12px;border-radius:2px;border:1px solid var(--green3);background:var(--green-bg);color:var(--green);cursor:pointer;width:100%;margin-bottom:8px;text-transform:uppercase}
+.food-log{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto;margin-bottom:9px}
+.food-entry{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg4);border:1px solid var(--border);border-radius:2px}
+.fe-name{font-family:var(--serif);font-size:12px;color:var(--cream2);flex:1}
+.fe-macros{font-family:var(--mono);font-size:8px;color:var(--cream4)}
+.fe-time{font-family:var(--mono);font-size:8px;color:var(--cream4)}
+.fe-del{background:none;border:none;color:var(--cream4);cursor:pointer;font-size:11px;opacity:.5}
+.fe-del:hover{color:var(--red);opacity:1}
+.food-ref{width:100%;border-collapse:collapse}
+.food-ref th{font-family:var(--mono);font-size:7px;color:var(--cream4);padding:3px 5px;border-bottom:1px solid var(--border);text-align:left;letter-spacing:.1em;text-transform:uppercase}
+.food-ref td{font-family:var(--mono);font-size:8px;color:var(--cream2);padding:3px 5px;border-bottom:1px solid var(--border)}
+.food-ref tr:last-child td{border-bottom:none}
+.frt-bar{height:5px;border-radius:1px}
+.frt-p{background:var(--green-bg);border:1px solid var(--green3);color:var(--green);font-family:var(--mono);font-size:7px;padding:1px 4px;border-radius:1px}
+.frt-c{background:var(--blue-bg);border:1px solid var(--blue2);color:var(--blue);font-family:var(--mono);font-size:7px;padding:1px 4px;border-radius:1px}
+.frt-f{background:var(--gold-bg);border:1px solid var(--gold3);color:var(--gold);font-family:var(--mono);font-size:7px;padding:1px 4px;border-radius:1px}
+
+/* ── MEAL TIMING ── */
+.meal-cards{display:flex;flex-direction:column;gap:4px}
+.meal-card{display:flex;align-items:flex-start;gap:9px;padding:7px 9px;border-radius:2px;border:1px solid var(--border);background:var(--bg4)}
+.meal-card.past{opacity:.45}
+.meal-card.cur{border-color:var(--gold3);background:var(--gold-bg)}
+.m-time{font-family:var(--mono);font-size:9px;color:var(--cream4);flex:0 0 36px;letter-spacing:.04em}
+.meal-card.cur .m-time{color:var(--gold)}
+.m-title{font-family:var(--serif);font-size:12px;color:var(--cream);margin-bottom:1px}
+.m-detail{font-family:var(--mono);font-size:8px;color:var(--cream4)}
+.m-kcal{font-family:var(--mono);font-size:9px;color:var(--cream4);flex:0 0 50px;text-align:right}
+
+/* ── BODY PROGRESS ── */
+.w-inp{background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:5px 8px;font-family:var(--serif);font-size:20px;color:var(--cream);width:76px;outline:none}
+.rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+.rec-card{background:var(--bg4);border:1px solid var(--border);border-radius:2px;padding:7px 6px;text-align:center}
+.rc-val{font-family:var(--serif);font-size:16px;color:var(--gold);line-height:1}
+.rc-lbl{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+
+/* ── SCOUT DEAL CARDS ── */
+.deal-card{background:var(--bg4);border:1px solid var(--border);border-radius:3px;padding:11px;margin-bottom:9px;position:relative;overflow:hidden}
+.deal-card.sb{border-left:2px solid var(--green)}
+.deal-card.fb{border-left:2px solid var(--gold)}
+.deal-card.wo{border-left:2px solid var(--amber)}
+.deal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:7px}
+.deal-title{font-family:var(--serif);font-size:15px;color:var(--cream)}
+.deal-src{font-family:var(--mono);font-size:8px;color:var(--cream4);margin-top:2px;letter-spacing:.04em}
+.new-bdg{font-family:var(--mono);font-size:7px;letter-spacing:.16em;padding:2px 7px;background:var(--red-bg);border:1px solid var(--red3);color:var(--red);border-radius:1px;animation:pulse-dot 1.5s infinite;text-transform:uppercase}
+.deal-thumb-ph{width:100%;height:72px;margin-bottom:8px;background:var(--bg3);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.deal-pr-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.deal-price{font-family:var(--serif);font-weight:300;font-size:22px;color:var(--cream);line-height:1}
+.score-sm{width:34px;height:34px}.score-v{font-family:var(--mono);font-size:10px;color:var(--gold)}
+.vbdg{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:3px 9px;border-radius:1px;display:inline-block;text-transform:uppercase}
+.vbdg.sb{background:var(--green-bg);border:1px solid var(--green3);color:var(--green)}
+.vbdg.fb{background:var(--gold-bg);border:1px solid var(--gold3);color:var(--gold)}
+.vbdg.wo{background:var(--amber-bg);border:1px solid var(--amber2);color:var(--amber)}
+.vbdg.pa{background:var(--red-bg);border:1px solid var(--red3);color:var(--red)}
+.tag-chips{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.chip{font-family:var(--mono);font-size:7px;letter-spacing:.1em;padding:2px 6px;border-radius:1px;background:var(--bg3);border:1px solid var(--border2);color:var(--cream4);text-transform:uppercase}
+.chip.g{background:var(--green-bg);border-color:var(--green3);color:var(--green)}
+.chip.a{background:var(--gold-bg);border-color:var(--gold3);color:var(--gold)}
+.chip.r{background:var(--red-bg);border-color:var(--red3);color:var(--red)}
+.a-chks{margin:5px 0}
+.a-chk{display:flex;align-items:center;gap:6px;padding:3px 0;font-family:var(--mono);font-size:8px;color:var(--cream4);cursor:pointer}
+.a-cb{width:10px;height:10px;border:1px solid var(--border3);border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:6px;color:transparent;flex-shrink:0}
+.a-chk.on .a-cb{background:var(--green3);border-color:var(--green);color:var(--green)}
+.a-chk.on span{color:var(--green)}
+.deal-btns{display:flex;gap:5px;margin-top:7px}
+.dbtn{font-family:var(--mono);font-size:8px;letter-spacing:.1em;padding:5px 10px;border-radius:2px;border:1px solid var(--border2);background:transparent;color:var(--cream4);cursor:pointer;transition:all .15s;text-decoration:none;display:inline-block;text-transform:uppercase}
+.dbtn:hover{border-color:var(--gold3);color:var(--gold)}
+.dbtn.prim{border-color:var(--gold3);color:var(--gold)}
+.dbtn.prim:hover{background:var(--gold-bg)}
+
+/* ── HUNT LIST ── */
+.hunt-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+.hunt-table th{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.14em;text-align:left;padding:4px 5px;border-bottom:1px solid var(--border);text-transform:uppercase}
+.hunt-table td{font-family:var(--mono);font-size:9px;color:var(--cream2);padding:5px 5px;border-bottom:1px solid var(--border)}
+.hs{font-size:7px;padding:2px 5px;border-radius:1px;letter-spacing:.1em;text-transform:uppercase}
+.hs-a{background:var(--green-bg);border:1px solid var(--green3);color:var(--green)}
+.hs-m{background:var(--gold-bg);border:1px solid var(--gold3);color:var(--gold)}
+.hs-o{background:var(--bg4);border:1px solid var(--border2);color:var(--cream4)}
+.add-hunt{background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:10px;margin-top:9px}
+.ah-title{font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.ah-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px}
+.ah-inp,.ah-sel{background:var(--bg3);border:1px solid var(--border2);border-radius:2px;padding:5px 7px;font-family:var(--mono);font-size:9px;color:var(--cream2);width:100%;outline:none}
+.ah-inp:focus{border-color:var(--gold3)}
+.ah-btn{font-family:var(--mono);font-size:8px;letter-spacing:.16em;padding:6px 14px;border-radius:2px;border:1px solid var(--green3);background:var(--green-bg);color:var(--green);cursor:pointer;width:100%;text-transform:uppercase}
+
+/* ── PLATFORMS ── */
+.plat-cards{display:flex;flex-direction:column;gap:4px}
+.plat-card{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:2px}
+.plat-name{font-family:var(--serif);font-size:12px;color:var(--cream);flex:1}
+.plat-cat{font-family:var(--mono);font-size:7px;color:var(--cream4);flex:0 0 76px;letter-spacing:.06em}
+.plat-age{font-family:var(--mono);font-size:8px;flex:0 0 40px}
+.plat-link{font-family:var(--mono);font-size:8px;letter-spacing:.1em;padding:3px 9px;border:1px solid var(--border2);background:transparent;color:var(--cream4);border-radius:2px;cursor:pointer;text-decoration:none;transition:all .15s;display:inline-block;text-transform:uppercase;white-space:nowrap}
+.plat-link:hover{border-color:var(--gold3);color:var(--gold)}
+
+/* ── INTEL ── */
+.intel-card{background:var(--bg4);border:1px solid var(--border);border-radius:2px;padding:9px 10px;margin-bottom:5px}
+.intel-card:last-child{margin-bottom:0}
+.intel-hl{font-family:var(--serif);font-size:13px;color:var(--cream);margin-bottom:4px;line-height:1.3}
+.intel-meta{display:flex;gap:8px;margin-bottom:4px;flex-wrap:wrap;align-items:center}
+.intel-src{font-family:var(--mono);font-size:7px;color:var(--cream4);padding:1px 5px;background:var(--bg3);border:1px solid var(--border2);border-radius:1px;letter-spacing:.1em;text-transform:uppercase}
+.intel-price{font-family:var(--mono);font-size:10px;color:var(--gold)}
+.intel-delta{font-family:var(--mono);font-size:9px}
+.intel-insight{font-family:var(--serif);font-size:12px;color:var(--cream3);font-style:italic;line-height:1.5}
+
+/* ── PRICE ALERT ── */
+.al-form{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px}
+.al-sel,.al-inp{background:var(--bg4);border:1px solid var(--border2);border-radius:2px;padding:5px 8px;font-family:var(--mono);font-size:9px;color:var(--cream2);outline:none}
+.al-types{display:flex;gap:4px;margin-bottom:6px}
+.alt-btn{font-family:var(--mono);font-size:8px;letter-spacing:.12em;padding:5px 11px;border:1px solid var(--border2);background:transparent;color:var(--cream4);border-radius:2px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.alt-btn.on{background:var(--blue-bg);border-color:var(--blue2);color:var(--blue)}
+.set-al{font-family:var(--mono);font-size:8px;letter-spacing:.18em;padding:6px 14px;border:1px solid var(--green3);background:var(--green-bg);color:var(--green);border-radius:2px;cursor:pointer;width:100%;margin-bottom:9px;text-transform:uppercase}
+.al-list{display:flex;flex-direction:column;gap:4px}
+.al-item{display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--bg4);border:1px solid var(--border);border-radius:2px}
+.al-ref{font-family:var(--serif);font-size:12px;color:var(--cream2);flex:1}
+.al-cond{font-family:var(--mono);font-size:9px;color:var(--gold)}
+.al-del{background:none;border:none;color:var(--cream4);cursor:pointer;font-size:11px;opacity:.5}
+.al-del:hover{color:var(--red);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ═══ API KEY GATE ═══ -->
+<div id="apiGate">
+  <div class="gate-card">
+    <div class="gate-logo">Zeus</div>
+    <div class="gate-sub">Personal Intelligence Terminal</div>
+    <div class="gate-label">Anthropic API Key</div>
+    <input class="gate-input" id="gateKeyInput" type="password" placeholder="sk-ant-api03-...">
+    <button class="gate-btn" onclick="submitApiKey()">Enter Terminal →</button>
+    <div class="gate-note">Your key is stored locally in this browser only.<br>It never leaves your device and is not transmitted anywhere.</div>
+    <div class="gate-err" id="gateErr">Invalid key format. Please check and try again.</div>
+  </div>
+</div>
+
+<!-- ═══ AI WORKOUT MODAL ═══ -->
+<div id="aiModal">
+  <div class="ai-modal-card">
+    <div class="ai-modal-hd">
+      <div class="ai-modal-title">AI Workout Research</div>
+      <button class="ai-modal-close" onclick="closeAIModal()">✕</button>
+    </div>
+    <div class="ai-modal-body" id="aiModalBody">
+      <div class="ai-modal-loading">
+        <div class="spinner"></div>
+        Researching optimal workout programming based on your profile...<br>
+        <span style="color:var(--cream4);font-size:8px;margin-top:8px;display:block">This may take 15–30 seconds</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOP BAR ═══ -->
+<div id="topbar">
+  <div class="tb-logo">
+    <div class="zeus-glyph"></div>
+    <div class="zeus-wordmark">
+      <span class="zeus-name">Zeus</span>
+      <span class="zeus-sub">Personal Intelligence Terminal</span>
+    </div>
+  </div>
+  <div class="tb-tabs">
+    <button class="tb-tab active" onclick="switchTab('command',this)">Command</button>
+    <button class="tb-tab" onclick="switchTab('athlete',this)">Athlete</button>
+    <button class="tb-tab" onclick="switchTab('scout',this)">Scout</button>
+  </div>
+  <div class="tb-right">
+    <button class="api-status-btn" id="apiStatusBtn" onclick="resetApiKey()" title="Click to reset API key">API ●</button>
+    <div class="tb-div"></div>
+    <div style="position:relative;">
+      <button class="mode-btn" id="modeBtn" onclick="toggleDD()">Demo ▾</button>
+      <div class="mode-dropdown" id="modeDD">
+        <div style="font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.2em;text-transform:uppercase;padding:4px 10px 6px;border-bottom:1px solid var(--border);margin-bottom:4px;">Data Source</div>
+        <div class="mode-opt" onclick="setMode('demo')"><div class="conn-dot con-off"></div>Demo Mode<span style="margin-left:auto;font-size:7px;color:var(--cream4)">Mock</span></div>
+        <div class="mode-opt" onclick="setMode('live')"><div class="conn-dot con-on"></div>Live Feed<span style="margin-left:auto;font-size:7px;color:var(--gold)">Active</span></div>
+        <div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
+          <div style="font-family:var(--mono);font-size:7px;color:var(--cream4);letter-spacing:.2em;text-transform:uppercase;padding:0 10px 5px;">Connectors</div>
+          <div class="mode-opt" style="padding:3px 10px;font-size:8px;"><div class="conn-dot con-on"></div>Frankfurter EUR/USD</div>
+          <div class="mode-opt" style="padding:3px 10px;font-size:8px;"><div class="conn-dot con-on"></div>Google Calendar MCP</div>
+          <div class="mode-opt" style="padding:3px 10px;font-size:8px;"><div class="conn-dot con-on"></div>Gmail MCP</div>
+          <div class="mode-opt" style="padding:3px 10px;font-size:8px;"><div class="conn-dot con-on"></div>Anthropic Claude API</div>
+        </div>
+      </div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-clock" id="clock">--:--:-- SGT</div>
+  </div>
+</div>
+
+<!-- ═══ TICKER ═══ -->
+<div id="ticker">
+  <div class="tick-inner" id="tickerEl">
+    <span class="ti">EUR/USD <span class="v">1.0847</span> <span class="up">▲ 0.21%</span></span><span class="t-sep">·</span>
+    <span class="ti">GBP/USD <span class="v">1.2731</span> <span class="up">▲ 0.14%</span></span><span class="t-sep">·</span>
+    <span class="ti">S&amp;P 500 <span class="v">5,482</span> <span class="dn">▼ 0.38%</span></span><span class="t-sep">·</span>
+    <span class="ti">Nasdaq <span class="v">17,618</span> <span class="dn">▼ 0.52%</span></span><span class="t-sep">·</span>
+    <span class="ti">VIX <span class="v">16.4</span> <span class="fl">▲ 1.2</span></span><span class="t-sep">·</span>
+    <span class="ti">DXY <span class="v">104.82</span> <span class="dn">▼ 0.18%</span></span><span class="t-sep">·</span>
+    <span class="ti">Gold <span class="v">2,342</span> <span class="up">▲ 0.61%</span></span><span class="t-sep">·</span>
+    <span class="ti">BTC <span class="v">68,240</span> <span class="up">▲ 1.84%</span></span><span class="t-sep">·</span>
+    <span class="ti">ETH <span class="v">3,580</span> <span class="up">▲ 2.10%</span></span><span class="t-sep">·</span>
+    <span class="ti">EUR/USD <span class="v">1.0847</span> <span class="up">▲ 0.21%</span></span><span class="t-sep">·</span>
+    <span class="ti">GBP/USD <span class="v">1.2731</span> <span class="up">▲ 0.14%</span></span><span class="t-sep">·</span>
+    <span class="ti">S&amp;P 500 <span class="v">5,482</span> <span class="dn">▼ 0.38%</span></span><span class="t-sep">·</span>
+    <span class="ti">Nasdaq <span class="v">17,618</span> <span class="dn">▼ 0.52%</span></span><span class="t-sep">·</span>
+    <span class="ti">VIX <span class="v">16.4</span> <span class="fl">▲ 1.2</span></span><span class="t-sep">·</span>
+    <span class="ti">DXY <span class="v">104.82</span> <span class="dn">▼ 0.18%</span></span><span class="t-sep">·</span>
+    <span class="ti">Gold <span class="v">2,342</span> <span class="up">▲ 0.61%</span></span><span class="t-sep">·</span>
+    <span class="ti">BTC <span class="v">68,240</span> <span class="up">▲ 1.84%</span></span><span class="t-sep">·</span>
+    <span class="ti">ETH <span class="v">3,580</span> <span class="up">▲ 2.10%</span></span><span class="t-sep">·</span>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div id="main">
+
+<!-- ════ COMMAND ════ -->
+<div id="tab-command" class="tab-view active">
+  <div class="g65-35">
+    <div class="col">
+
+      <!-- DAILY PULSE -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Daily Pulse</span><span class="pb gold" id="todayBadge">...</span></div>
+        <div class="pd">
+          <div class="wx-row">
+            <div class="wx-temp">31°</div>
+            <div>
+              <div class="wx-desc">Partly Cloudy · Singapore</div>
+              <div class="wx-sub"><span>Humidity 78%</span><span>UV Index 9</span><span>Sunrise 06:52</span></div>
+            </div>
+          </div>
+          <div class="s-pill"><span class="s-tag">Gym</span><span class="s-val" id="gymSession">Loading...</span></div>
+          <div class="s-pill"><span class="s-tag">Tonight</span><span class="s-val" id="nightSession">Loading...</span></div>
+          <div style="margin-top:8px;">
+            <div class="p-label">Today's Priority</div>
+            <input class="p-inp" id="priorityInput" value="Close Q2 enterprise deal — Nexus Systems demo at 14:00">
+          </div>
+          <div class="cal-strip" id="calStrip"></div>
+        </div>
+      </div>
+
+      <!-- TRADE DESK -->
+      <div class="panel">
+        <div class="ph"><span class="pt">EUR/USD Trade Desk</span><span class="pb green" id="killzoneBadge">Loading...</span></div>
+        <div class="pd">
+          <div class="price-hero">
+            <span class="p-big" id="eurusdPrice">1.0847</span>
+            <span class="p-chg p-up" id="eurusdChg">+0.0023 · +0.21%</span>
+          </div>
+          <div class="chart-wrap"><canvas id="eurusdChart"></canvas></div>
+          <div class="sl">HTF Bias</div>
+          <div class="htf-row">
+            <button class="htf bull on" onclick="setHTF(this,'bull')">Bullish</button>
+            <button class="htf bear" onclick="setHTF(this,'bear')">Bearish</button>
+            <button class="htf neut" onclick="setHTF(this,'neut')">Neutral</button>
+          </div>
+          <div class="smc-grid">
+            <div class="sf"><div class="sfl">Bullish OB</div><input class="sfi" id="smc-bob" value="1.0820"></div>
+            <div class="sf"><div class="sfl">Bearish OB</div><input class="sfi" id="smc-beob" value="1.0895"></div>
+            <div class="sf"><div class="sfl">FVG High</div><input class="sfi" id="smc-fvgh" value="1.0862"></div>
+            <div class="sf"><div class="sfl">FVG Low</div><input class="sfi" id="smc-fvgl" value="1.0851"></div>
+            <div class="sf"><div class="sfl">Key Support</div><input class="sfi" id="smc-sup" value="1.0800"></div>
+            <div class="sf"><div class="sfl">Key Resistance</div><input class="sfi" id="smc-res" value="1.0920"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="sl">Economic Calendar · SGT</div>
+          <div class="econ-row past"><div class="imp ih"></div><div class="et">08:30</div><div class="en">UK CPI (MoM)</div><div class="ep">Prev: 0.6%</div></div>
+          <div class="econ-row past"><div class="imp im"></div><div class="et">10:00</div><div class="en">EUR Industrial Output</div><div class="ep">Prev: -0.2%</div></div>
+          <div class="econ-row"><div class="imp ih"></div><div class="et">16:15</div><div class="en">FOMC Member Speech</div><div class="ep">High impact</div></div>
+          <div class="econ-row"><div class="imp ih"></div><div class="et">20:30</div><div class="en">US GDP Q1 Prelim</div><div class="ep">Prev: 3.4%</div></div>
+          <div class="econ-row"><div class="imp im"></div><div class="et">22:00</div><div class="en">US Consumer Confidence</div><div class="ep">Prev: 97.0</div></div>
+          <div class="divider"></div>
+          <div class="sl">SMC Pre-Trade Checklist</div>
+          <div class="chk-list" id="chkList">
+            <div class="chk on" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">HTF bias confirmed (H4/Daily)</div></div>
+            <div class="chk on" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">Killzone active — London or NY</div></div>
+            <div class="chk on" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">Liquidity sweep identified</div></div>
+            <div class="chk" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">CHoCH or BOS confirmed on 15m</div></div>
+            <div class="chk" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">OB or FVG identified on 15m</div></div>
+            <div class="chk" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">3m entry confirmation candle</div></div>
+            <div class="chk" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">SL beyond OB/FVG extreme</div></div>
+            <div class="chk" onclick="toggleChk(this)"><div class="chk-box">✓</div><div class="chk-txt">R:R minimum 1:2 confirmed</div></div>
+          </div>
+          <div class="prog-row"><div class="prog-bar"><div class="prog-fill" id="chkProg" style="width:37.5%"></div></div><span class="prog-lbl" id="chkLbl">3/8</span></div>
+          <button class="go-btn" id="goBtn">Go</button>
+        </div>
+      </div>
+
+      <!-- NEWS FEED -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Macro News Feed</span><span class="pb blue" id="newsBadge">Finance · Crypto · AI</span></div>
+        <div class="pd" id="newsContainer">
+          <div class="news-loading">Loading live news...</div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+
+    <div class="col">
+
+      <!-- EQUITY SNAPSHOT -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Equity Snapshot</span><span class="pb">NYSE · SGT</span></div>
+        <div class="pd">
+          <div class="eq-metrics">
+            <div class="eq-m"><div class="eq-mn">S&amp;P 500</div><div class="eq-mv" id="idx-sp">5,482</div><div class="eq-mc dn" id="idx-spc">▼ 0.38%</div></div>
+            <div class="eq-m"><div class="eq-mn">Nasdaq</div><div class="eq-mv" id="idx-nq">17,618</div><div class="eq-mc dn" id="idx-nqc">▼ 0.52%</div></div>
+            <div class="eq-m"><div class="eq-mn">VIX</div><div class="eq-mv" id="idx-vix">16.4</div><div class="eq-mc fl" id="idx-vixc">▲ 1.2</div></div>
+            <div class="eq-m"><div class="eq-mn">DXY</div><div class="eq-mv" id="idx-dxy">104.82</div><div class="eq-mc dn" id="idx-dxyc">▼ 0.18%</div></div>
+          </div>
+          <div class="sl">My Equities</div>
+          <div class="tk-row">
+            <input class="tk-inp" id="tickerInput" type="text" maxlength="6" placeholder="Add ticker — e.g. NVDA">
+            <button class="tk-add" onclick="addTicker()">+ Add</button>
+          </div>
+          <div class="eq-positions" id="eqPositions"></div>
+        </div>
+      </div>
+
+      <!-- SYSTEM STATUS -->
+      <div class="panel">
+        <div class="ph"><span class="pt">System Status</span><span class="pb">Zeus Agents</span></div>
+        <div class="pd">
+          <div class="agent-row"><div class="a-name">Agent 01 · Morning Pulse</div><div class="a-st"><div class="sdot" style="background:var(--green);animation:pulse-dot 2s infinite"></div><span style="color:var(--green);font-size:8px;letter-spacing:.1em">Active</span></div><div class="a-meta">Last: 08:30</div></div>
+          <div class="agent-row"><div class="a-name">Agent 02 · Trade Desk</div><div class="a-st"><div class="sdot" style="background:var(--green);animation:pulse-dot 2s infinite"></div><span style="color:var(--green);font-size:8px;letter-spacing:.1em">Active</span></div><div class="a-meta">Running</div></div>
+          <div class="agent-row"><div class="a-name">Agent 03 · Athlete HQ</div><div class="a-st"><div class="sdot" style="background:var(--cream4)"></div><span style="color:var(--cream4);font-size:8px;letter-spacing:.1em">Pending</span></div></div>
+          <div class="agent-row"><div class="a-name">Agent 04 · Nutrition</div><div class="a-st"><div class="sdot" style="background:var(--cream4)"></div><span style="color:var(--cream4);font-size:8px;letter-spacing:.1em">Pending</span></div></div>
+          <div class="agent-row"><div class="a-name">Agent 05 · Vintage Scout</div><div class="a-st"><div class="sdot" style="background:var(--cream4)"></div><span style="color:var(--cream4);font-size:8px;letter-spacing:.1em">Pending</span></div></div>
+          <div class="agent-row"><div class="a-name">Agent 06 · Conductor</div><div class="a-st"><div class="sdot" style="background:var(--cream4)"></div><span style="color:var(--cream4);font-size:8px;letter-spacing:.1em">Pending</span></div></div>
+          <div class="divider"></div>
+          <div class="agent-row"><div class="a-name">Anthropic API</div><div class="a-st"><div class="sdot" id="apiDot" style="background:var(--gold);animation:pulse-dot 2s infinite"></div><span id="apiStat" style="color:var(--gold);font-size:8px;letter-spacing:.1em">Connected</span></div></div>
+        </div>
+      </div>
+
+    </div><!-- /right -->
+  </div>
+</div><!-- /command -->
+
+<!-- ════ ATHLETE ════ -->
+<div id="tab-athlete" class="tab-view">
+  <div class="g55-45">
+    <div class="col">
+
+      <!-- WORKOUT -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Today's Workout</span><span class="pb gold" id="woBadge">Pull Day</span></div>
+        <div class="pd">
+          <div class="wo-header">
+            <div class="day-tabs">
+              <button class="day-tab" onclick="switchDay('mon',this)">Mon</button>
+              <button class="day-tab active" onclick="switchDay('tue',this)">Tue</button>
+              <button class="day-tab" onclick="switchDay('wed',this)">Wed</button>
+              <button class="day-tab" onclick="switchDay('thu',this)">Thu</button>
+              <button class="day-tab" onclick="switchDay('fri',this)">Fri</button>
+              <button class="day-tab" onclick="switchDay('sat',this)">Sat</button>
+              <button class="day-tab" onclick="switchDay('sun',this)">Sun</button>
+            </div>
+            <button class="ai-refresh-btn" id="aiRefreshBtn" onclick="triggerAIWorkout()">
+              <span class="ai-spinner"></span>
+              ⚡ AI Refresh
+            </button>
+          </div>
+          <div class="wo-title" id="woTitle">Pull Day — Back · Biceps · Rear Delts</div>
+          <table class="ex-table">
+            <thead><tr><th></th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Load</th><th>Rest</th><th></th></tr></thead>
+            <tbody id="woBody">
+              <tr class="ex-row done" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Deadlift (conventional)</td><td>4</td><td>5–6</td><td><input class="ex-li" value="110kg" onclick="event.stopPropagation()"></td><td>3 min</td><td><div class="set-p"><div class="set-pf" style="width:100%"></div></div></td></tr>
+              <tr class="ex-row done" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Weighted pull-ups</td><td>4</td><td>6–8</td><td><input class="ex-li" value="BW+10kg" onclick="event.stopPropagation()"></td><td>2-3 min</td><td><div class="set-p"><div class="set-pf" style="width:100%"></div></div></td></tr>
+              <tr class="ex-row" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Barbell bent-over row</td><td>4</td><td>8–10</td><td><input class="ex-li" value="70kg" onclick="event.stopPropagation()"></td><td>2 min</td><td><div class="set-p"><div class="set-pf" style="width:50%"></div></div></td></tr>
+              <tr class="ex-row" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Cable close-grip row</td><td>3</td><td>12–15</td><td><input class="ex-li" value="60kg" onclick="event.stopPropagation()"></td><td>90s</td><td><div class="set-p"><div class="set-pf" style="width:0%"></div></div></td></tr>
+              <tr class="ex-row" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Face pulls (rope)</td><td>4</td><td>15–20</td><td><input class="ex-li" value="20kg" onclick="event.stopPropagation()"></td><td>60s</td><td><div class="set-p"><div class="set-pf" style="width:0%"></div></div></td></tr>
+              <tr class="ex-row" onclick="toggleEx(this)"><td class="ex-cb-w"><div class="ex-cb">✓</div></td><td class="ex-nm">Barbell curl</td><td>3</td><td>10–12</td><td><input class="ex-li" value="35kg" onclick="event.stopPropagation()"></td><td>60s</td><td><div class="set-p"><div class="set-pf" style="width:0%"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BJJ -->
+      <div class="panel">
+        <div class="ph"><span class="pt">BJJ Session Log</span><span class="pb" style="color:#9b59b6;border-color:#4a1f7a">Purple · 4 Stripes</span></div>
+        <div class="pd">
+          <div class="belt-wrap"><div class="belt-vis"><div class="belt-bar"></div><div class="belt-stripe"></div><div class="belt-stripe"></div><div class="belt-stripe"></div><div class="belt-stripe"></div></div><span class="belt-lbl">Purple Belt, 4 Stripes</span></div>
+          <textarea class="bjj-ta" placeholder="What did you drill today?"></textarea>
+          <div class="pos-tags">
+            <button class="pos-tag on">Guard Passing</button><button class="pos-tag">Guard Retention</button>
+            <button class="pos-tag on">Submissions</button><button class="pos-tag">Escapes</button>
+            <button class="pos-tag">Top Control</button><button class="pos-tag">Takedowns</button>
+            <button class="pos-tag">Turtle</button><button class="pos-tag">Back Takes</button>
+          </div>
+          <button class="log-btn" onclick="logBJJ()">Log Session →</button>
+          <div class="yt-lbl-row">
+            <svg width="14" height="10" viewBox="0 0 14 10"><rect width="14" height="10" rx="2" fill="#d44828"/><polygon points="5.5,2.5 10,5 5.5,7.5" fill="white"/></svg>
+            <span class="yt-lbl">Trending BJJ · Today</span>
+          </div>
+          <div class="yt-grid">
+            <a class="yt-card" href="https://www.youtube.com/results?search_query=bjj+technique+2025" target="_blank"><div class="yt-thumb" style="background:linear-gradient(135deg,#1a0f0a,#2d1a10);"><div style="font-family:var(--mono);font-size:7px;color:var(--cream4);text-align:center;z-index:1">Gordon Ryan</div><div class="yt-play"><div class="yt-play-ic">▶</div></div></div><div class="yt-info"><div class="yt-nm">The Leg Lock System That Wins Everything</div><div class="yt-ch">FloGrappling · 2.1M views</div></div></a>
+            <a class="yt-card" href="https://www.youtube.com/results?search_query=bjj+guard+passing+2025" target="_blank"><div class="yt-thumb" style="background:linear-gradient(135deg,#0a0d1a,#101828);"><div style="font-family:var(--mono);font-size:7px;color:var(--cream4);text-align:center;z-index:1">Guard Pass</div><div class="yt-play"><div class="yt-play-ic">▶</div></div></div><div class="yt-info"><div class="yt-nm">Torreando Finishing Details Nobody Teaches</div><div class="yt-ch">Bernardo Faria · 890K</div></div></a>
+            <a class="yt-card" href="https://www.youtube.com/results?search_query=bjj+back+takes+2025" target="_blank"><div class="yt-thumb" style="background:linear-gradient(135deg,#0a1a0a,#102014);"><div style="font-family:var(--mono);font-size:7px;color:var(--cream4);text-align:center;z-index:1">Back Takes</div><div class="yt-play"><div class="yt-play-ic">▶</div></div></div><div class="yt-info"><div class="yt-nm">Mata Leone — 3 Entry Points From Turtle</div><div class="yt-ch">John Danaher · 1.4M</div></div></a>
+            <a class="yt-card" href="https://www.youtube.com/results?search_query=bjj+heel+hooks+purple+belt" target="_blank"><div class="yt-thumb" style="background:linear-gradient(135deg,#1a1200,#2d2000);"><div style="font-family:var(--mono);font-size:7px;color:var(--cream4);text-align:center;z-index:1">Heel Hooks</div><div class="yt-play"><div class="yt-play-ic">▶</div></div></div><div class="yt-info"><div class="yt-nm">Inside Heel Hook — Every Detail for Purple Belts</div><div class="yt-ch">Craig Jones · 620K</div></div></a>
+          </div>
+          <div class="divider"></div>
+          <div class="sl">Session History</div>
+          <div class="bjj-history" id="bjjHistory">
+            <div class="bjj-entry"><div class="bjj-ed">Apr 28 · 19:30 SGT</div><div class="bjj-et"><span class="bjj-tag">Guard Passing</span><span class="bjj-tag">Top Control</span></div><div class="bjj-en">Drilled torreando pass. 6 rounds. Knee cut finishing focus.</div></div>
+            <div class="bjj-entry"><div class="bjj-ed">Apr 26 · 19:30 SGT</div><div class="bjj-et"><span class="bjj-tag">Submissions</span><span class="bjj-tag">Back Takes</span></div><div class="bjj-en">Rear naked choke mechanics. 8 rounds open mat.</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+    <div class="col">
+
+      <!-- MACRO RINGS -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Macro Tracker</span><span class="pb gold">Training Day +150 kcal</span></div>
+        <div class="pd">
+          <div class="macro-rings">
+            <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 78 78"><circle class="ring-bg" cx="39" cy="39" r="33"/><circle class="ring-fill" cx="39" cy="39" r="33" stroke="var(--gold)" stroke-dashoffset="86" transform="rotate(-90 39 39)"/><text x="39" y="36" text-anchor="middle" font-family="Cormorant Garamond" font-size="13" fill="var(--cream)" id="ring-kcal-val">1,840</text><text x="39" y="47" text-anchor="middle" font-family="DM Mono" font-size="7" fill="var(--cream4)">kcal</text></svg><div class="ring-lbl">Calories</div><div class="ring-rem" style="color:var(--gold)" id="ring-kcal-rem">660 remaining</div></div>
+            <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 78 78"><circle class="ring-bg" cx="39" cy="39" r="33"/><circle class="ring-fill" cx="39" cy="39" r="33" stroke="var(--green)" stroke-dashoffset="54" transform="rotate(-90 39 39)"/><text x="39" y="36" text-anchor="middle" font-family="Cormorant Garamond" font-size="13" fill="var(--cream)" id="ring-prot-val">118g</text><text x="39" y="47" text-anchor="middle" font-family="DM Mono" font-size="7" fill="var(--cream4)">protein</text></svg><div class="ring-lbl">Protein</div><div class="ring-rem" style="color:var(--green)" id="ring-prot-rem">47g remaining</div></div>
+            <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 78 78"><circle class="ring-bg" cx="39" cy="39" r="33"/><circle class="ring-fill" cx="39" cy="39" r="33" stroke="var(--blue)" stroke-dashoffset="108" transform="rotate(-90 39 39)"/><text x="39" y="36" text-anchor="middle" font-family="Cormorant Garamond" font-size="13" fill="var(--cream)" id="ring-carb-val">152g</text><text x="39" y="47" text-anchor="middle" font-family="DM Mono" font-size="7" fill="var(--cream4)">carbs</text></svg><div class="ring-lbl">Carbs</div><div class="ring-rem" style="color:var(--blue)" id="ring-carb-rem">78g remaining</div></div>
+            <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 78 78"><circle class="ring-bg" cx="39" cy="39" r="33"/><circle class="ring-fill" cx="39" cy="39" r="33" stroke="var(--amber)" stroke-dashoffset="64" transform="rotate(-90 39 39)"/><text x="39" y="36" text-anchor="middle" font-family="Cormorant Garamond" font-size="13" fill="var(--cream)" id="ring-fat-val">42g</text><text x="39" y="47" text-anchor="middle" font-family="DM Mono" font-size="7" fill="var(--cream4)">fat</text></svg><div class="ring-lbl">Fat</div><div class="ring-rem" style="color:var(--amber)" id="ring-fat-rem">28g remaining</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOD LOGGER -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Food Logger</span><span class="pb">Singapore Hawker + Custom</span></div>
+        <div class="pd">
+          <select class="food-sel" id="foodSel">
+            <option value="">Select food...</option>
+            <optgroup label="— Hawker / Local —">
+              <option value="cr">Chicken rice (no skin) · 520kcal · 40p 60c 8f</option>
+              <option value="ckw">Char kway teow · 744kcal · 20p 98c 30f</option>
+              <option value="wnt">Wonton noodle soup · 420kcal · 22p 58c 8f</option>
+              <option value="econ">Economy rice 1+2 · 480kcal · 28p 55c 14f</option>
+              <option value="roti">Roti prata plain · 300kcal · 8p 42c 11f</option>
+              <option value="meegr">Mee goreng · 660kcal · 18p 88c 24f</option>
+              <option value="bak">Bak chor mee · 520kcal · 28p 65c 14f</option>
+              <option value="fish">Fish soup + rice · 450kcal · 35p 50c 6f</option>
+            </optgroup>
+            <optgroup label="— Training —">
+              <option value="prgy">Pre-gym: eggs+oats+PB · 230kcal · 13p 28c 9f</option>
+              <option value="gcr">Grilled chicken + rice · 480kcal · 52p 48c 6f</option>
+              <option value="whey">Whey shake + banana · 280kcal · 32p 30c 3f</option>
+              <option value="gky">Greek yogurt 200g · 150kcal · 17p 12c 2f</option>
+              <option value="tuna">Tuna 1 can · 130kcal · 28p 0c 1f</option>
+            </optgroup>
+          </select>
+          <button class="add-food-btn" onclick="addFood()">+ Add to Log</button>
+          <div class="sl">Today's Log</div>
+          <div class="food-log" id="foodLog">
+            <div class="food-entry"><div class="fe-name">Pre-gym: eggs + oats + PB</div><div class="fe-macros">13p·28c·9f</div><div class="fe-time">08:12</div><button class="fe-del" onclick="this.parentElement.remove()">×</button></div>
+            <div class="food-entry"><div class="fe-name">Grilled chicken + rice</div><div class="fe-macros">52p·48c·6f</div><div class="fe-time">11:45</div><button class="fe-del" onclick="this.parentElement.remove()">×</button></div>
+            <div class="food-entry"><div class="fe-name">Whey shake + banana</div><div class="fe-macros">32p·30c·3f</div><div class="fe-time">14:30</div><button class="fe-del" onclick="this.parentElement.remove()">×</button></div>
+          </div>
+          <div class="divider"></div>
+          <div class="sl">Macro Reference — Protein Density per 100g</div>
+          <table class="food-ref">
+            <thead><tr><th>Food</th><th>Cat</th><th>Kcal</th><th>Protein</th><th>Bar</th></tr></thead>
+            <tbody>
+              <tr><td>Whey protein</td><td><span class="frt-p">P</span></td><td>380</td><td>80g</td><td><div class="frt-bar" style="width:100%;background:var(--green);opacity:.7"></div></td></tr>
+              <tr><td>Chicken breast</td><td><span class="frt-p">P</span></td><td>165</td><td>31g</td><td><div class="frt-bar" style="width:78%;background:var(--green);opacity:.7"></div></td></tr>
+              <tr><td>Tuna (canned)</td><td><span class="frt-p">P</span></td><td>116</td><td>26g</td><td><div class="frt-bar" style="width:65%;background:var(--green);opacity:.7"></div></td></tr>
+              <tr><td>Greek yogurt</td><td><span class="frt-p">P</span></td><td>59</td><td>10g</td><td><div class="frt-bar" style="width:25%;background:var(--green);opacity:.5"></div></td></tr>
+              <tr><td>Eggs (2 large)</td><td><span class="frt-p">P</span></td><td>143</td><td>12g</td><td><div class="frt-bar" style="width:30%;background:var(--green);opacity:.6"></div></td></tr>
+              <tr><td>Oats</td><td><span class="frt-c">C</span></td><td>389</td><td>17g</td><td><div class="frt-bar" style="width:43%;background:var(--blue);opacity:.7"></div></td></tr>
+              <tr><td>White rice</td><td><span class="frt-c">C</span></td><td>130</td><td>2.7g</td><td><div class="frt-bar" style="width:7%;background:var(--blue)"></div></td></tr>
+              <tr><td>Peanut butter</td><td><span class="frt-f">F</span></td><td>588</td><td>25g</td><td><div class="frt-bar" style="width:63%;background:var(--gold);opacity:.7"></div></td></tr>
+              <tr><td>Avocado</td><td><span class="frt-f">F</span></td><td>160</td><td>2g</td><td><div class="frt-bar" style="width:5%;background:var(--gold)"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MEAL TIMING -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Meal Timing Protocol</span><span class="pb">5 Windows</span></div>
+        <div class="pd">
+          <div class="meal-cards">
+            <div class="meal-card past"><div class="m-time">08:00</div><div style="flex:1"><div class="m-title">Pre-Gym</div><div class="m-detail">2 eggs + oats + PB · 13g protein</div></div><div class="m-kcal">~230</div></div>
+            <div class="meal-card past"><div class="m-time">11:30</div><div style="flex:1"><div class="m-title">Post-Gym (Largest)</div><div class="m-detail">Target 50–60g protein</div></div><div class="m-kcal">~700</div></div>
+            <div class="meal-card cur"><div class="m-time">15:00</div><div style="flex:1"><div class="m-title">Afternoon ← Now</div><div class="m-detail">Tuna / yogurt / whey + banana</div></div><div class="m-kcal">~410</div></div>
+            <div class="meal-card"><div class="m-time">18:30</div><div style="flex:1"><div class="m-title">Pre-Run / Pre-BJJ</div><div class="m-detail">Rice + protein, light fat</div></div><div class="m-kcal">~400</div></div>
+            <div class="meal-card"><div class="m-time">22:00</div><div style="flex:1"><div class="m-title">Post-Session</div><div class="m-detail">Casein-rich, minimal carbs</div></div><div class="m-kcal">~350</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY PROGRESS -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Body Progress</span><span class="pb">Target · 12% BF</span></div>
+        <div class="pd">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+            <div><div class="sl">Current</div><input class="w-inp" id="weightInput" value="75.0"></div>
+            <div><div style="font-family:var(--mono);font-size:9px;color:var(--cream4);">Target: 71.0 kg · 4.0 to go</div><div style="margin-top:3px;font-family:var(--mono);font-size:9px;color:var(--green);">↓ 0.3 kg/week · on track</div></div>
+          </div>
+          <div style="height:90px;"><canvas id="weightChart"></canvas></div>
+          <div class="rec-grid">
+            <div class="rec-card"><div class="rc-val">7.2</div><div class="rc-lbl">Recovery</div></div>
+            <div class="rec-card"><div class="rc-val">7.1h</div><div class="rc-lbl">Sleep</div></div>
+            <div class="rec-card"><div class="rc-val" style="color:var(--amber2)">Med</div><div class="rc-lbl">Load</div></div>
+            <div class="rec-card"><div class="rc-val">58ms</div><div class="rc-lbl">HRV</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right -->
+  </div>
+</div><!-- /athlete -->
+
+<!-- ════ SCOUT ════ -->
+<div id="tab-scout" class="tab-view">
+  <div class="g60-40">
+    <div class="col">
+
+      <!-- DEAL ALERTS -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Active Deal Alerts</span><span class="pb red">3 New</span></div>
+        <div class="pd">
+          <div class="deal-card sb">
+            <div class="deal-hd"><div><div class="deal-title">Rolex Explorer 1016</div><div class="deal-src">eBay Japan · ¥1,850,000 (~$12,400)</div></div><span class="new-bdg">New</span></div>
+            <div class="deal-thumb-ph" style="background:linear-gradient(135deg,#1a1206,#2d2010);"><div style="font-size:22px">⌚</div><div style="font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:.08em;">Explorer 1016 · ~1967</div><div style="font-family:var(--mono);font-size:7px;color:var(--cream4)">Image loads in Live mode</div></div>
+            <div class="deal-pr-row"><span class="deal-price">$12,400</span><svg class="score-sm" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="var(--bg4)" stroke-width="4"/><circle cx="17" cy="17" r="13" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="72 82" stroke-dashoffset="20" stroke-linecap="round" transform="rotate(-90 17 17)"/><text x="17" y="21" text-anchor="middle" font-family="Cormorant Garamond" font-size="9" fill="var(--gold)">8.2</text></svg><span class="score-v">/10</span><span class="vbdg sb">Strong Buy</span></div>
+            <div class="tag-chips"><span class="chip g">Underpriced</span><span class="chip">Authentic-Pending</span><span class="chip a">Rare Ref</span><span class="chip">Japan Market</span></div>
+            <div class="a-chks">
+              <div class="a-chk on" onclick="this.classList.toggle('on')"><div class="a-cb">✓</div><span>Dial text: Swiss Made · T Swiss T</span></div>
+              <div class="a-chk on" onclick="this.classList.toggle('on')"><div class="a-cb">✓</div><span>Case ref stamped: 1016</span></div>
+              <div class="a-chk" onclick="this.classList.toggle('on')"><div class="a-cb">✓</div><span>Movement: Cal. 1560 or 1570</span></div>
+              <div class="a-chk" onclick="this.classList.toggle('on')"><div class="a-cb">✓</div><span>Lume intact, no repaint</span></div>
+              <div class="a-chk" onclick="this.classList.toggle('on')"><div class="a-cb">✓</div><span>Serial range: 1.2M–3.2M</span></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--green);margin-top:4px;">Fair value $14,500 · Listed 14% below market</div>
+            <div class="deal-btns"><a class="dbtn prim" href="https://www.ebay.co.jp/sch/i.html?_nkw=rolex+explorer+1016" target="_blank">View on eBay Japan →</a><button class="dbtn">Save to Queue</button></div>
+          </div>
+          <div class="deal-card fb">
+            <div class="deal-hd"><div><div class="deal-title">Vintage Lee 101Z Chore Coat</div><div class="deal-src">Grailed · $185</div></div><span class="new-bdg">New</span></div>
+            <div class="deal-pr-row"><span class="deal-price">$185</span><svg class="score-sm" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="var(--bg4)" stroke-width="4"/><circle cx="17" cy="17" r="13" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="65 82" stroke-dashoffset="20" stroke-linecap="round" transform="rotate(-90 17 17)"/><text x="17" y="21" text-anchor="middle" font-family="Cormorant Garamond" font-size="9" fill="var(--gold)">7.1</text></svg><span class="score-v">/10</span><span class="vbdg fb">Fair Buy</span></div>
+            <div class="tag-chips"><span class="chip">Workwear</span><span class="chip">Americana</span><span class="chip g">Deal</span><span class="chip">Size 42</span></div>
+            <div style="font-family:var(--serif);font-size:12px;font-style:italic;color:var(--cream3);margin:5px 0;">Fading consistent with era. Cuff repairs typical. Size 42 correct for 185cm frame.</div>
+            <div class="deal-btns"><a class="dbtn prim" href="https://www.grailed.com/shop/lee+101z" target="_blank">View on Grailed →</a><button class="dbtn">Save to Queue</button></div>
+          </div>
+          <div class="deal-card wo">
+            <div class="deal-hd"><div><div class="deal-title">Rolex GMT-Master 1675 Pepsi</div><div class="deal-src">Chrono24 · $18,500</div></div></div>
+            <div class="deal-pr-row"><span class="deal-price">$18,500</span><svg class="score-sm" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="var(--bg4)" stroke-width="4"/><circle cx="17" cy="17" r="13" fill="none" stroke="var(--amber)" stroke-width="4" stroke-dasharray="59 82" stroke-dashoffset="20" stroke-linecap="round" transform="rotate(-90 17 17)"/><text x="17" y="21" text-anchor="middle" font-family="Cormorant Garamond" font-size="9" fill="var(--amber)">6.4</text></svg><span class="score-v">/10</span><span class="vbdg wo">Watch Only</span></div>
+            <div class="tag-chips"><span class="chip r">Over Budget</span><span class="chip">Iconic Ref</span><span class="chip a">Monitor</span></div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--red);margin-top:4px;">Exceeds $16,000 ceiling by $2,500</div>
+            <div class="deal-btns"><a class="dbtn prim" href="https://www.chrono24.com/rolex/rolex-gmt-master-1675.htm" target="_blank">View on Chrono24 →</a><button class="dbtn">Save to Queue</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HUNT LIST -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Hunt List</span><span class="pb" id="huntCount">11 Targets</span></div>
+        <div class="pd">
+          <div class="sl">Watches</div>
+          <table class="hunt-table" id="watchHT"><thead><tr><th>Reference</th><th>Budget</th><th>Mkt Est.</th><th>Trend</th><th>Status</th></tr></thead><tbody>
+            <tr><td>Explorer 1016 · 5504 · 6298</td><td>$5k–$16k</td><td style="color:var(--gold)">~$13,500</td><td class="up">↑</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>Submariner 5513 · 5512 · 1680</td><td>$8k–$16k</td><td style="color:var(--gold)">~$14,200</td><td class="fl">→</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>GMT-Master 1675 Pepsi</td><td>$10k–$16k</td><td style="color:var(--red)">~$17,500</td><td class="up">↑</td><td><span class="hs hs-m">Monitor</span></td></tr>
+            <tr><td>GMT-Master 16750 Root Beer</td><td>$8k–$14k</td><td style="color:var(--gold)">~$11,000</td><td class="fl">→</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>Bubbleback 2940 · 3372</td><td>$1.5k–$5k</td><td style="color:var(--gold)">~$3,800</td><td class="up">↑</td><td><span class="hs hs-a">Hunting</span></td></tr>
+          </tbody></table>
+          <div class="sl" style="margin-top:9px;">Clothing</div>
+          <table class="hunt-table" id="clothHT"><thead><tr><th>Target</th><th>Max Budget</th><th>Platforms</th><th>Status</th></tr></thead><tbody>
+            <tr><td>Lee 101Z / 101B jacket</td><td>$400</td><td style="color:var(--cream4)">Grailed · eBay</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>Levi's Type III vintage</td><td>$300</td><td style="color:var(--cream4)">Grailed · Yahoo JP</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>Carhartt Detroit Jacket</td><td>$350</td><td style="color:var(--cream4)">eBay · Grailed</td><td><span class="hs hs-a">Hunting</span></td></tr>
+            <tr><td>Buzz Rickson's</td><td>$500</td><td style="color:var(--cream4)">Grailed · Yahoo JP</td><td><span class="hs hs-a">Hunting</span></td></tr>
+          </tbody></table>
+          <div class="add-hunt">
+            <div class="ah-title">+ Add to Hunt List</div>
+            <div class="ah-grid">
+              <input class="ah-inp" id="ahItem" placeholder="Item / Reference">
+              <input class="ah-inp" id="ahBudget" placeholder="Budget (e.g. $500)">
+              <input class="ah-inp" id="ahPlat" placeholder="Platforms to scan">
+              <select class="ah-sel" id="ahCat"><option value="watch">Watch</option><option value="clothing">Clothing</option><option value="other">Other</option></select>
+            </div>
+            <button class="ah-btn" onclick="addHuntItem()">Add to Hunt List + Activate Scout →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+    <div class="col">
+
+      <!-- PLATFORMS -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Platforms to Scan</span><span class="pb">12 Sources</span></div>
+        <div class="pd">
+          <div class="plat-cards">
+            <div class="plat-card"><div class="plat-name">eBay Global</div><div class="plat-cat">watches + clothing</div><div class="plat-age" style="color:var(--green)">2h ago</div><a class="plat-link" href="https://www.ebay.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">eBay Japan</div><div class="plat-cat">watches + workwear</div><div class="plat-age" style="color:var(--green)">2h ago</div><a class="plat-link" href="https://www.ebay.co.jp" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Chrono24</div><div class="plat-cat">watches</div><div class="plat-age" style="color:var(--cream3)">3h ago</div><a class="plat-link" href="https://www.chrono24.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">WatchCharts</div><div class="plat-cat">watches · price data</div><div class="plat-age" style="color:var(--cream4)">4h ago</div><a class="plat-link" href="https://watchcharts.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Grailed</div><div class="plat-cat">clothing + watches</div><div class="plat-age" style="color:var(--green)">1h ago</div><a class="plat-link" href="https://www.grailed.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Vestiaire Collective</div><div class="plat-cat">luxury + vintage</div><div class="plat-age" style="color:var(--cream3)">3h ago</div><a class="plat-link" href="https://www.vestiairecollective.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Yahoo Japan Auctions</div><div class="plat-cat">watches + clothing</div><div class="plat-age" style="color:var(--amber)">5h ago</div><a class="plat-link" href="https://auctions.yahoo.co.jp" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Bob's Watches</div><div class="plat-cat">Rolex specialist</div><div class="plat-age" style="color:var(--red)">6h ago</div><a class="plat-link" href="https://www.bobswatches.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">WatchBox</div><div class="plat-cat">pre-owned watches</div><div class="plat-age" style="color:var(--cream4)">4h ago</div><a class="plat-link" href="https://www.thewatchbox.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Crown & Caliber</div><div class="plat-cat">pre-owned Rolex</div><div class="plat-age" style="color:var(--amber)">5h ago</div><a class="plat-link" href="https://www.crownandcaliber.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Depop</div><div class="plat-cat">clothing · streetwear</div><div class="plat-age" style="color:var(--green)">2h ago</div><a class="plat-link" href="https://www.depop.com" target="_blank">Open →</a></div>
+            <div class="plat-card"><div class="plat-name">Mercari Japan</div><div class="plat-cat">watches + clothing</div><div class="plat-age" style="color:var(--amber)">5h ago</div><a class="plat-link" href="https://jp.mercari.com" target="_blank">Open →</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VINTAGE INTEL -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Vintage Market Intel</span><span class="pb">Recent Comps</span></div>
+        <div class="pd">
+          <div class="intel-card"><div class="intel-hl">Rolex 5513 Matt Dial · Unpolished</div><div class="intel-meta"><span class="intel-src">Phillips Geneva Nov 2024</span><span class="intel-price">$31,500</span><span class="intel-delta up">▲ +12% vs estimate</span></div><div class="intel-insight">"Strong signal for original-condition examples. Collectors paying 20–30% condition premium vs restored dials."</div></div>
+          <div class="intel-card"><div class="intel-hl">Rolex Bubbleback 3372 · Mid-case</div><div class="intel-meta"><span class="intel-src">Private Sale SG · Apr 2025</span><span class="intel-price">$4,200</span><span class="intel-delta up">▲ Trend</span></div><div class="intel-insight">"Undervalued vs 5-year trajectory. Bubblebacks up ~18% YoY. Ideal entry tier for vintage Rolex."</div></div>
+          <div class="intel-card"><div class="intel-hl">Lee 101Z Chore Coat · Size 42</div><div class="intel-meta"><span class="intel-src">Grailed Sale · Apr 2025</span><span class="intel-price">$210</span><span class="intel-delta fl">→ Stable</span></div><div class="intel-insight">"Size 42 premium in Asia/Japan market. Buy window narrowing on fair+ examples."</div></div>
+          <div class="intel-card"><div class="intel-hl">Rolex Explorer 6298 "Gilt Dial"</div><div class="intel-meta"><span class="intel-src">Sotheby's HK · Mar 2025</span><span class="intel-price">$28,000</span><span class="intel-delta up">▲ +8%</span></div><div class="intel-insight">"Early Explorer refs outperforming. Strong comp anchor for 1016 target."</div></div>
+        </div>
+      </div>
+
+      <!-- PRICE ALERT -->
+      <div class="panel">
+        <div class="ph"><span class="pt">Price Alert Setter</span><span class="pb" id="alCountBdg">2 Active</span></div>
+        <div class="pd">
+          <div class="al-form">
+            <select class="al-sel" id="alRef"><option>Explorer 1016</option><option>Submariner 5513</option><option>GMT-Master 1675</option><option>Bubbleback 2940</option><option>Lee 101Z</option></select>
+            <input class="al-inp" id="alPrice" placeholder="Target price (USD)">
+          </div>
+          <div class="al-types"><button class="alt-btn on" id="alBelow" onclick="setAT('below')">≤ price</button><button class="alt-btn" id="alAbove" onclick="setAT('above')">≥ price</button></div>
+          <button class="set-al" onclick="addAlert()">Set Alert →</button>
+          <div class="sl">Active Alerts</div>
+          <div class="al-list" id="alList">
+            <div class="al-item"><span class="al-ref">Explorer 1016</span><span class="al-cond">≤ $12,000</span><button class="al-del" onclick="this.parentElement.remove();updateAlCount()">×</button></div>
+            <div class="al-item"><span class="al-ref">Bubbleback 2940</span><span class="al-cond">≤ $3,500</span><button class="al-del" onclick="this.parentElement.remove();updateAlCount()">×</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right -->
+  </div>
+</div><!-- /scout -->
+
+</div><!-- /main -->
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════ */
+const USER_PROFILE = {
+  age: 42, sex: 'male', height: 185, weight: 75,
+  goal: 'body recomposition — reach 12% body fat',
+  experience: 'intermediate-advanced',
+  beltRank: 'BJJ Purple Belt 4 stripes',
+  schedule: 'Mon: Push · Tue: Pull · Wed: Push2 · Thu: Pull2 · Fri: Legs · Sat: Rest · Sun: Optional',
+  bjjDays: 'Mon/Wed/Fri evenings',
+  cardio: 'Tue: 10km run · Thu: HIIT intervals',
+  macros: '2350 kcal · 165g protein · 230g carbs · 70g fat',
+  currentLifts: 'Deadlift 110kg · Squat 90kg · Bench 80kg · OHP 52.5kg',
+  constraints: 'High weekly volume — BJJ + cardio on top of lifting. Must account for recovery at 42. Legs non-negotiable.'
+};
+
+const MOCK_PRICES = {
+  NVDA:{p:874.15,c:1.24},MSFT:{p:415.50,c:0.68},META:{p:502.30,c:-0.44},
+  AMZN:{p:186.20,c:0.92},GOOGL:{p:171.84,c:-0.31},TSLA:{p:214.60,c:-1.82},
+  AMD:{p:168.20,c:2.14},PLTR:{p:24.80,c:3.50},AAPL:{p:182.40,c:0.22},
+  NFLX:{p:632.10,c:1.05},JPM:{p:196.80,c:-0.31},V:{p:278.50,c:0.44}
+};
+
+/* ═══════════════════════════════════════════════════════
+   API KEY MANAGEMENT
+═══════════════════════════════════════════════════════ */
+let ZEUS_API_KEY = localStorage.getItem('ZEUS_API_KEY') || '';
+
+function submitApiKey() {
+  const val = document.getElementById('gateKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('gateErr').style.display = 'block';
+    return;
+  }
+  ZEUS_API_KEY = val;
+  localStorage.setItem('ZEUS_API_KEY', val);
+  document.getElementById('apiGate').classList.add('hidden');
+  initDashboard();
+}
+
+function resetApiKey() {
+  if (confirm('Reset API key? You will need to re-enter it.')) {
+    localStorage.removeItem('ZEUS_API_KEY');
+    ZEUS_API_KEY = '';
+    location.reload();
+  }
+}
+
+// Check on load
+window.addEventListener('DOMContentLoaded', () => {
+  if (ZEUS_API_KEY && ZEUS_API_KEY.startsWith('sk-ant-')) {
+    document.getElementById('apiGate').classList.add('hidden');
+    initDashboard();
+  }
+  document.getElementById('gateKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitApiKey();
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+function initDashboard() {
+  startClock();
+  initCalendar();
+  initDayAwareContent();
+  initCharts();
+  initEquityTracker();
+  loadNewsDemo();
+  loadEURUSDDemo();
+  loadSMCFromStorage();
+  restorePreferences();
+  updateChkProg();
+}
+
+/* ═══════════════════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════════════════ */
+function startClock() {
+  function tick() {
+    const s = new Date(new Date().getTime() + 8*3600000);
+    const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const h=s.getUTCHours().toString().padStart(2,'0'),m=s.getUTCMinutes().toString().padStart(2,'0'),sec=s.getUTCSeconds().toString().padStart(2,'0');
+    document.getElementById('clock').textContent=`${h}:${m}:${sec} SGT · ${D[s.getUTCDay()]} ${s.getUTCDate()} ${M[s.getUTCMonth()]}`;
+  }
+  setInterval(tick,1000); tick();
+}
+
+/* ═══════════════════════════════════════════════════════
+   CALENDAR + DAY CONTENT
+═══════════════════════════════════════════════════════ */
+function initCalendar() {
+  const sgt = new Date(new Date().getTime() + 8*3600000);
+  const today = sgt.getUTCDate();
+  const dow = sgt.getUTCDay();
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  document.getElementById('todayBadge').textContent = `${D[dow]} ${today} ${M[sgt.getUTCMonth()]}`;
+
+  const events = { 0:'Rest·Optional', 1:'Push·BJJ', 2:'Pull·Run', 3:'Push2·BJJ', 4:'Pull2·HIIT', 5:'Legs·BJJ', 6:'Rest' };
+  const strip = document.getElementById('calStrip');
+  for (let i = -1; i <= 3; i++) {
+    const d = new Date(sgt.getTime() + i*86400000);
+    const dn = D[d.getUTCDay()].substring(0,3).toUpperCase();
+    const dd = d.getUTCDate();
+    const ev = events[d.getUTCDay()] || '';
+    const isToday = i === 0;
+    strip.innerHTML += `<div class="cal-d${isToday?' today':''}"><div class="cdn">${dn}</div><div class="cdd">${dd}</div><div class="cde">${ev}</div></div>`;
+  }
+}
+
+function initDayAwareContent() {
+  const sgt = new Date(new Date().getTime() + 8*3600000);
+  const dow = sgt.getUTCDay();
+  const gymMap = {
+    1:'Push Day — Chest · Shoulders · Triceps',
+    2:'Pull Day — Back · Biceps · Rear Delts',
+    3:'Push Day 2 — Incline · Upper Chest Focus',
+    4:'Pull Day 2 — Width & Arms',
+    5:'Legs Day — DO NOT SKIP',
+    6:'Rest Day · Active Recovery',
+    0:'Optional Light Session'
+  };
+  const nightMap = {
+    1:'BJJ 19:30 SGT', 2:'Long Run 10km · 19:30 SGT', 3:'BJJ 19:30 SGT',
+    4:'HIIT Intervals · 19:00 SGT', 5:'BJJ 19:30 SGT', 6:'Free Evening', 0:'Free Evening'
+  };
+  const killzoneMap = () => {
+    const h = sgt.getUTCHours() + 8;
+    const adjusted = h >= 24 ? h - 24 : h;
+    if (adjusted >= 15 && adjusted < 18) return 'London Open';
+    if (adjusted >= 20 && adjusted < 23) return 'NY Open';
+    return 'Off-Session';
+  };
+
+  document.getElementById('gymSession').textContent = gymMap[dow] || 'Rest Day';
+  document.getElementById('nightSession').textContent = nightMap[dow] || 'Free Evening';
+  document.getElementById('killzoneBadge').textContent = killzoneMap();
+
+  // Set current day tab
+  const dayNames = ['sun','mon','tue','wed','thu','fri','sat'];
+  const currentDay = dayNames[dow];
+  document.querySelectorAll('.day-tab').forEach(t => {
+    t.classList.remove('active');
+    if (t.textContent.toLowerCase() === currentDay.substring(0,3)) {
+      t.classList.add('active');
+      switchDay(currentDay, t);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   WORKOUT DATA
+═══════════════════════════════════════════════════════ */
+const WORKOUTS = {
+  mon:{title:'Push Day — Chest · Shoulders · Triceps',badge:'Push Day',exercises:[
+    {n:'Barbell bench press',s:'4',r:'6–8',l:'80kg',rest:'2-3 min'},
+    {n:'Overhead press (barbell)',s:'4',r:'8–10',l:'52.5kg',rest:'2 min'},
+    {n:'Incline dumbbell press',s:'3',r:'10–12',l:'30kg DBs',rest:'90s'},
+    {n:'Cable lateral raises',s:'4',r:'15–20',l:'10kg',rest:'60s'},
+    {n:'Tricep rope pushdown',s:'3',r:'12–15',l:'25kg',rest:'60s'},
+    {n:'Overhead tricep extension',s:'3',r:'12–15',l:'20kg',rest:'60s'}
+  ]},
+  tue:{title:'Pull Day — Back · Biceps · Rear Delts',badge:'Pull Day',exercises:[
+    {n:'Deadlift (conventional)',s:'4',r:'5–6',l:'110kg',rest:'3 min'},
+    {n:'Weighted pull-ups',s:'4',r:'6–8',l:'BW+10kg',rest:'2-3 min'},
+    {n:'Barbell bent-over row',s:'4',r:'8–10',l:'70kg',rest:'2 min'},
+    {n:'Cable close-grip row',s:'3',r:'12–15',l:'60kg',rest:'90s'},
+    {n:'Face pulls (rope)',s:'4',r:'15–20',l:'20kg',rest:'60s'},
+    {n:'Barbell curl',s:'3',r:'10–12',l:'35kg',rest:'60s'}
+  ]},
+  wed:{title:'Push Day 2 — Incline · Upper Chest Focus',badge:'Push Day 2',exercises:[
+    {n:'Incline barbell press',s:'4',r:'6–8',l:'72.5kg',rest:'2-3 min'},
+    {n:'Flat dumbbell press',s:'3',r:'10–12',l:'35kg DBs',rest:'90s'},
+    {n:'Seated dumbbell OHP',s:'4',r:'10–12',l:'24kg DBs',rest:'2 min'},
+    {n:'Cable crossover (high)',s:'3',r:'15',l:'15kg each',rest:'60s'},
+    {n:'Lateral raises (dumbbell)',s:'4',r:'15–20',l:'10kg',rest:'60s'},
+    {n:'Tricep dips (weighted)',s:'3',r:'10–12',l:'BW+10kg',rest:'90s'}
+  ]},
+  thu:{title:'Pull Day 2 — Width & Arms',badge:'Pull Day 2',exercises:[
+    {n:'Lat pulldown (wide grip)',s:'4',r:'10–12',l:'75kg',rest:'2 min'},
+    {n:'Single arm DB row',s:'4',r:'10 each',l:'40kg DB',rest:'90s'},
+    {n:'Chest-supported row',s:'3',r:'12–15',l:'25kg DBs',rest:'90s'},
+    {n:'Rear delt fly (machine)',s:'4',r:'15–20',l:'40kg',rest:'60s'},
+    {n:'Hammer curl',s:'3',r:'12',l:'18kg DBs',rest:'60s'},
+    {n:'Incline dumbbell curl',s:'3',r:'12',l:'14kg DBs',rest:'60s'}
+  ]},
+  fri:{title:'Legs Day — DO NOT SKIP',badge:'Legs Day',exercises:[
+    {n:'Barbell back squat',s:'4',r:'6–8',l:'90kg',rest:'3 min'},
+    {n:'Romanian deadlift',s:'4',r:'10–12',l:'80kg',rest:'2 min'},
+    {n:'Leg press',s:'3',r:'12–15',l:'180kg',rest:'90s'},
+    {n:'Walking DB lunges',s:'3',r:'20 steps',l:'20kg DBs',rest:'90s'},
+    {n:'Leg curl (machine)',s:'3',r:'12–15',l:'50kg',rest:'60s'},
+    {n:'Standing calf raise',s:'4',r:'20–25',l:'60kg',rest:'45s'}
+  ]},
+  sat:{title:'Rest · Active Recovery',badge:'Rest Day',exercises:[]},
+  sun:{title:'Optional Light Session',badge:'Optional',exercises:[]}
+};
+
+function switchDay(day, btn) {
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const w = WORKOUTS[day];
+  if (!w) return;
+  document.getElementById('woTitle').textContent = w.title;
+  document.getElementById('woBadge').textContent = w.badge;
+  const body = document.getElementById('woBody');
+  if (!w.exercises.length) {
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--cream4);padding:16px;font-family:var(--mono);font-size:10px;">${w.title}</td></tr>`;
+    return;
+  }
+  body.innerHTML = w.exercises.map(e => `
+    <tr class="ex-row" onclick="toggleEx(this)">
+      <td class="ex-cb-w"><div class="ex-cb">✓</div></td>
+      <td class="ex-nm">${e.n}</td><td>${e.s}</td><td>${e.r}</td>
+      <td><input class="ex-li" value="${e.l}" onclick="event.stopPropagation()"></td>
+      <td>${e.rest}</td>
+      <td><div class="set-p"><div class="set-pf" style="width:0%"></div></div></td>
+    </tr>`).join('');
+}
+
+function toggleEx(row) { row.classList.toggle('done'); }
+
+/* ═══════════════════════════════════════════════════════
+   AI WORKOUT REFRESH
+═══════════════════════════════════════════════════════ */
+async function triggerAIWorkout() {
+  const btn = document.getElementById('aiRefreshBtn');
+  btn.classList.add('loading');
+  document.getElementById('aiModal').classList.add('open');
+  document.getElementById('aiModalBody').innerHTML = `
+    <div class="ai-modal-loading">
+      <div class="spinner"></div>
+      Researching latest exercise science for your profile...<br>
+      <span style="color:var(--cream4);font-size:8px;margin-top:8px;display:block">Analysing: age 42 · body recomposition · PPL compatibility · BJJ load management</span>
+    </div>`;
+
+  const prompt = `You are an expert strength & conditioning coach and exercise scientist. Research and design a complete, refreshed 5-day Push/Pull/Legs workout programme for the following athlete profile:
+
+ATHLETE PROFILE:
+- Age: 42, Male, 185cm, 75kg
+- Goal: Body recomposition — reach 12% body fat
+- Experience: Intermediate-advanced (6+ years lifting)
+- Current maxes: Deadlift 110kg · Squat 90kg · Bench 80kg · OHP 52.5kg
+- BJJ: Purple Belt, trains Mon/Wed/Fri evenings (high CNS demand)
+- Cardio: Tue 10km run, Thu HIIT intervals
+- Macros: 2350 kcal · 165g protein · 230g carbs · 70g fat
+- Schedule: Mon Push · Tue Pull · Wed Push2 · Thu Pull2 · Fri Legs · Sat Rest · Sun Optional
+
+CRITICAL CONSTRAINTS:
+1. Must account for recovery at age 42 — testosterone is lower, recovery slower. Prioritise quality over volume.
+2. BJJ on Mon/Wed/Fri nights — gym sessions on these days must not exhaust the athlete before mat time. Push days should prioritise upper body only, save energy for BJJ.
+3. Legs on Friday before a rest day — this is correct. Keep it.
+4. The programme must be DIFFERENT from his current routine (no identical exercises in the same slots).
+5. Include science-based rationale for key exercise selections.
+6. Format clearly with day headers, exercise names, sets, reps, load guidance, and rest times.
+7. Include 2-3 key programming notes at the end (e.g. progressive overload cues, deload guidance for over-40s).
+
+This is a REFRESHED programme — make it meaningfully different while being equally or more effective. Base it on 2024-2025 evidence-based hypertrophy and body recomposition research.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ZEUS_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'No response received.';
+
+    document.getElementById('aiModalBody').innerHTML = `
+      <div class="ai-result">${escHtml(text)}</div>
+      <button class="ai-apply-btn" onclick="closeAIModal()">Close & Review →</button>`;
+  } catch (err) {
+    document.getElementById('aiModalBody').innerHTML = `
+      <div style="font-family:var(--mono);font-size:10px;color:var(--red);padding:20px;text-align:center;">
+        Error: ${escHtml(err.message)}<br>
+        <span style="color:var(--cream4);font-size:8px;margin-top:8px;display:block">Check your API key or network connection.</span>
+      </div>`;
+  }
+  btn.classList.remove('loading');
+}
+
+function closeAIModal() { document.getElementById('aiModal').classList.remove('open'); }
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ═══════════════════════════════════════════════════════
+   LIVE NEWS (via Anthropic API)
+═══════════════════════════════════════════════════════ */
+async function loadNewsDemo() {
+  // Demo mode: show curated mock news
+  const container = document.getElementById('newsContainer');
+  const newsItems = [
+    { tag:'Macro', cls:'n-fin', hl:'Fed signals no rate cuts before Q3 as core PCE stays elevated at 2.8%', src:'Reuters', url:'https://www.reuters.com', time:'14m ago', sum:'Powell confirms higher-for-longer through June. EUR/USD bearish pressure expected on dollar strength narrative.' },
+    { tag:'Crypto', cls:'n-cry', hl:'Bitcoin breaks $68K as ETF inflows reach $840M — strongest week since March', src:'CoinDesk', url:'https://www.coindesk.com', time:'38m ago', sum:'Institutional rotation from gold to BTC accelerating. BlackRock IBIT leads. Analysts targeting $72K–75K.' },
+    { tag:'AI', cls:'n-ai', hl:'OpenAI closes $40B round at $340B valuation — largest private tech raise in history', src:'The Information', url:'https://www.theinformation.com', time:'1h ago', sum:'SoftBank leads. Direct tailwind for AI SaaS SMB plays. Competitor landscape expanding through 2026.' },
+    { tag:'Equity', cls:'n-fin', hl:'NVDA Q1 earnings preview — consensus $24.5B revenue, options pricing 8% move', src:'Yahoo Finance', url:'https://finance.yahoo.com', time:'2h ago', sum:'Blackwell ramp is key variable. Beat + raise scenario targets $950. Miss could trigger AI trade unwind.' },
+    { tag:'Regulatory', cls:'n-reg', hl:'MAS issues AI compliance framework — mandatory for digital banks by Q4', src:'MAS', url:'https://www.mas.gov.sg', time:'3h ago', sum:'Regulatory tailwind for AI SaaS compliance vendors in SEA. Strong GTM opportunity for local B2B players.' }
+  ];
+  container.innerHTML = newsItems.map(n => `
+    <div class="news-card">
+      <div class="news-hl">${n.hl}</div>
+      <div class="news-meta"><span class="n-tag ${n.cls}">${n.tag}</span><a class="news-src" href="${n.url}" target="_blank">${n.src}</a><span>${n.time}</span></div>
+      <div class="news-sum">${n.sum}</div>
+    </div>`).join('');
+}
+
+async function loadNewsLive() {
+  const container = document.getElementById('newsContainer');
+  container.innerHTML = '<div class="news-loading">Fetching live news via Claude...</div>';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','x-api-key':ZEUS_API_KEY,'anthropic-version':'2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: 'Search for the 5 most important financial news stories today covering: forex/USD, crypto/Bitcoin, AI stocks, equity markets, Singapore finance/tech. For each give: headline, source, time, 1-sentence insight. Format as JSON array: [{headline, source, url, time, summary, category}]' }]
+      })
+    });
+    const data = await res.json();
+    const textBlock = data.content?.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No text response');
+    const clean = textBlock.text.replace(/```json|```/g,'').trim();
+    const articles = JSON.parse(clean);
+    const catMap = { forex:'n-fin', crypto:'n-cry', ai:'n-ai', equity:'n-fin', regulatory:'n-reg' };
+    container.innerHTML = articles.map(a => `
+      <div class="news-card">
+        <div class="news-hl">${a.headline || ''}</div>
+        <div class="news-meta"><span class="n-tag ${catMap[a.category]||'n-fin'}">${a.category||'News'}</span><a class="news-src" href="${a.url||'#'}" target="_blank">${a.source||''}</a><span>${a.time||''}</span></div>
+        <div class="news-sum">${a.summary||''}</div>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = `<div class="news-loading" style="color:var(--red)">Live news unavailable. Check API key.<br><span style="font-size:8px;color:var(--cream4)">Showing demo data instead.</span></div>`;
+    setTimeout(loadNewsDemo, 2000);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   EUR/USD LIVE DATA
+═══════════════════════════════════════════════════════ */
+async function loadEURUSDDemo() {
+  // Demo: use Frankfurter API for real EUR/USD (free, no key)
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+    const data = await res.json();
+    const rate = data.rates.USD;
+    document.getElementById('eurusdPrice').textContent = rate.toFixed(4);
+    document.getElementById('eurusdChg').textContent = '+0.0023 · +0.21%';
+    document.getElementById('eurusdChg').className = 'p-chg p-up';
+  } catch(e) {
+    console.log('EUR/USD fetch failed, using mock');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════════════════ */
+let sparkCharts = {};
+
+function initCharts() {
+  Chart.defaults.color = '#504840';
+  Chart.defaults.borderColor = '#1a2e1c';
+  Chart.defaults.font.family = "'DM Mono', monospace";
+  Chart.defaults.font.size = 9;
+
+  new Chart(document.getElementById('eurusdChart').getContext('2d'), {
+    type: 'line',
+    data: { labels: Array.from({length:24},(_,i)=>i+'h'), datasets: [{ data: [1.0798,1.0812,1.0805,1.0821,1.0835,1.0819,1.0842,1.0856,1.0844,1.0861,1.0877,1.0865,1.0880,1.0891,1.0876,1.0862,1.0847,1.0839,1.0851,1.0868,1.0847,1.0860,1.0847,1.0847], borderColor:'#c9983a', borderWidth:1.5, pointRadius:0, fill:{target:'origin',above:'rgba(201,152,58,0.07)'}, tension:.4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f110e',borderColor:'#1a2e1c',borderWidth:1,titleColor:'#c9983a',bodyColor:'#8a7f68'}}, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:6,color:'#504840'}}, y:{grid:{color:'rgba(26,46,28,0.6)'},ticks:{maxTicksLimit:4,color:'#504840'}} } }
+  });
+
+  new Chart(document.getElementById('weightChart').getContext('2d'), {
+    type: 'line',
+    data: { labels:['W1','W2','W3','W4','W5','W6','W7','W8'], datasets:[{ data:[76.2,75.9,75.7,75.5,75.4,75.2,75.0,75.0], borderColor:'#c9983a', borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#c9983a', fill:{target:'origin',above:'rgba(201,152,58,0.05)'}, tension:.4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f110e',borderColor:'#1a2e1c',borderWidth:1}}, scales:{ x:{grid:{display:false},ticks:{color:'#504840'}}, y:{grid:{color:'rgba(26,46,28,0.6)'},ticks:{color:'#504840'},min:70,max:77} } }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   EQUITY TRACKER
+═══════════════════════════════════════════════════════ */
+let userTickers = JSON.parse(localStorage.getItem('ZEUS_TICKERS') || '["NVDA","MSFT","META","AMZN","GOOGL","TSLA"]');
+
+function renderTickers() {
+  const c = document.getElementById('eqPositions');
+  c.innerHTML = '';
+  userTickers.forEach((tk, i) => {
+    const d = MOCK_PRICES[tk] || {p:0,c:0};
+    const cls = d.c >= 0 ? 'up' : 'dn', ar = d.c >= 0 ? '▲' : '▼', id = 'sp' + i;
+    const row = document.createElement('div');
+    row.className = 'eq-pos';
+    row.innerHTML = `<span class="eq-ticker">${tk}</span><span class="eq-price">$${d.p.toFixed(2)}</span><span class="eq-pct ${cls}">${ar}${Math.abs(d.c).toFixed(2)}%</span><canvas class="eq-spark" id="${id}" style="flex:1;height:28px"></canvas><button class="eq-del" onclick="removeTicker('${tk}')">×</button>`;
+    c.appendChild(row);
+    setTimeout(() => {
+      const ctx = document.getElementById(id)?.getContext('2d');
+      if (!ctx) return;
+      const up = d.c >= 0, base = 60 + Math.random() * 40;
+      const dat = Array.from({length:6}, (_,j) => base + (up?1:-1)*j*(Math.random()*2) + (Math.random()-.5));
+      if (sparkCharts[id]) sparkCharts[id].destroy();
+      sparkCharts[id] = new Chart(ctx, { type:'line', data:{ labels:dat.map((_,j)=>j), datasets:[{data:dat,borderColor:up?'#52b878':'#d44828',borderWidth:1.5,pointRadius:0,tension:.4}] }, options:{ responsive:false, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}} } });
+    }, 60);
+  });
+}
+
+function addTicker() {
+  const inp = document.getElementById('tickerInput');
+  const tk = inp.value.trim().toUpperCase();
+  if (!tk || userTickers.includes(tk)) return;
+  userTickers.push(tk); inp.value = '';
+  localStorage.setItem('ZEUS_TICKERS', JSON.stringify(userTickers));
+  renderTickers();
+}
+function removeTicker(tk) {
+  userTickers = userTickers.filter(t => t !== tk);
+  localStorage.setItem('ZEUS_TICKERS', JSON.stringify(userTickers));
+  renderTickers();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('tickerInput');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addTicker(); });
+});
+function initEquityTracker() { renderTickers(); }
+
+/* ═══════════════════════════════════════════════════════
+   TRADE DESK INTERACTIVITY
+═══════════════════════════════════════════════════════ */
+function setHTF(btn, cls) {
+  document.querySelectorAll('.htf').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  localStorage.setItem('ZEUS_HTF', cls);
+}
+
+function loadSMCFromStorage() {
+  const fields = ['smc-bob','smc-beob','smc-fvgh','smc-fvgl','smc-sup','smc-res'];
+  fields.forEach(id => {
+    const saved = localStorage.getItem('ZEUS_'+id);
+    if (saved) document.getElementById(id).value = saved;
+    document.getElementById(id)?.addEventListener('change', e => localStorage.setItem('ZEUS_'+id, e.target.value));
+  });
+  const htf = localStorage.getItem('ZEUS_HTF');
+  if (htf) document.querySelectorAll('.htf').forEach(b => { b.classList.remove('on'); if(b.classList.contains(htf)) b.classList.add('on'); });
+}
+
+function toggleChk(el) { el.classList.toggle('on'); updateChkProg(); }
+function updateChkProg() {
+  const all = document.querySelectorAll('#chkList .chk');
+  const done = document.querySelectorAll('#chkList .chk.on').length;
+  document.getElementById('chkProg').style.width = (done/all.length*100) + '%';
+  document.getElementById('chkLbl').textContent = done + '/' + all.length;
+  const gb = document.getElementById('goBtn');
+  if (done === all.length) { gb.classList.add('ready'); gb.textContent = 'Go — All Checks Passed'; }
+  else { gb.classList.remove('ready'); gb.textContent = 'Go'; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BJJ
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.pos-tag').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+});
+function logBJJ() {
+  const tags = [...document.querySelectorAll('.pos-tag.on')].map(t => t.textContent);
+  const note = document.querySelector('.bjj-ta')?.value;
+  if (!tags.length && !note) return;
+  const sgt = new Date(new Date().getTime() + 8*3600000);
+  const h = document.getElementById('bjjHistory');
+  const e = document.createElement('div'); e.className = 'bjj-entry';
+  e.innerHTML = `<div class="bjj-ed">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sgt.getUTCMonth()]} ${sgt.getUTCDate()} · ${sgt.getUTCHours().toString().padStart(2,'0')}:${sgt.getUTCMinutes().toString().padStart(2,'0')} SGT</div><div class="bjj-et">${tags.map(t=>`<span class="bjj-tag">${t}</span>`).join('')}</div><div class="bjj-en">${note || 'Session logged.'}</div>`;
+  h.insertBefore(e, h.firstChild);
+  if (document.querySelector('.bjj-ta')) document.querySelector('.bjj-ta').value = '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   FOOD LOGGER
+═══════════════════════════════════════════════════════ */
+function addFood() {
+  const s = document.getElementById('foodSel'); if (!s.value) return;
+  const sgt = new Date(new Date().getTime() + 8*3600000);
+  const t = `${sgt.getUTCHours().toString().padStart(2,'0')}:${sgt.getUTCMinutes().toString().padStart(2,'0')}`;
+  const name = s.options[s.selectedIndex].text.split(' · ')[0];
+  const parts = s.options[s.selectedIndex].text.split('·');
+  const macros = parts.length > 2 ? parts[2].trim() : '—';
+  const e = document.createElement('div'); e.className = 'food-entry';
+  e.innerHTML = `<div class="fe-name">${name}</div><div class="fe-macros">${macros}</div><div class="fe-time">${t}</div><button class="fe-del" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('foodLog').appendChild(e);
+}
+
+/* ═══════════════════════════════════════════════════════
+   HUNT LIST
+═══════════════════════════════════════════════════════ */
+function addHuntItem() {
+  const item = document.getElementById('ahItem').value.trim();
+  const budget = document.getElementById('ahBudget').value.trim();
+  const plat = document.getElementById('ahPlat').value.trim();
+  const cat = document.getElementById('ahCat').value;
+  if (!item) return;
+  const tbody = cat === 'clothing' ? document.getElementById('clothHT').querySelector('tbody') : document.getElementById('watchHT').querySelector('tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = cat === 'clothing'
+    ? `<td>${item}</td><td>${budget||'TBD'}</td><td style="color:var(--cream4)">${plat||'—'}</td><td><span class="hs hs-a">Hunting</span></td>`
+    : `<td>${item}</td><td>${budget||'TBD'}</td><td style="color:var(--gold)">—</td><td>—</td><td><span class="hs hs-a">Hunting</span></td>`;
+  tbody.appendChild(tr);
+  ['ahItem','ahBudget','ahPlat'].forEach(id => document.getElementById(id).value = '');
+  const c = document.getElementById('huntCount');
+  c.textContent = (parseInt(c.textContent) + 1) + ' Targets';
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRICE ALERTS
+═══════════════════════════════════════════════════════ */
+let alertType = 'below';
+function setAT(t) {
+  alertType = t;
+  document.getElementById('alBelow').classList.toggle('on', t === 'below');
+  document.getElementById('alAbove').classList.toggle('on', t === 'above');
+}
+function addAlert() {
+  const ref = document.getElementById('alRef').value;
+  const price = document.getElementById('alPrice').value;
+  if (!price) return;
+  const e = document.createElement('div'); e.className = 'al-item';
+  e.innerHTML = `<span class="al-ref">${ref}</span><span class="al-cond">${alertType==='below'?'≤':'≥'} $${price}</span><button class="al-del" onclick="this.parentElement.remove();updateAlCount()">×</button>`;
+  document.getElementById('alList').appendChild(e);
+  document.getElementById('alPrice').value = '';
+  updateAlCount();
+}
+function updateAlCount() {
+  document.getElementById('alCountBdg').textContent = document.getElementById('alList').children.length + ' Active';
+}
+
+/* ═══════════════════════════════════════════════════════
+   TAB SWITCHING
+═══════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tb-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'command') loadEURUSDDemo();
+  if (id === 'command' && currentMode === 'live') loadNewsLive();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODE TOGGLE
+═══════════════════════════════════════════════════════ */
+let currentMode = localStorage.getItem('ZEUS_MODE') || 'demo';
+function toggleDD() { document.getElementById('modeDD').classList.toggle('open'); }
+function setMode(m) {
+  currentMode = m;
+  const btn = document.getElementById('modeBtn');
+  document.getElementById('modeDD').classList.remove('open');
+  btn.textContent = m === 'live' ? 'Live ▾' : 'Demo ▾';
+  m === 'live' ? btn.classList.add('live') : btn.classList.remove('live');
+  localStorage.setItem('ZEUS_MODE', m);
+  if (m === 'live') { loadNewsLive(); loadEURUSDDemo(); }
+  else { loadNewsDemo(); }
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#modeDD') && !e.target.closest('#modeBtn')) document.getElementById('modeDD').classList.remove('open');
+});
+if (currentMode === 'live') { document.getElementById('modeBtn').textContent = 'Live ▾'; document.getElementById('modeBtn').classList.add('live'); }
+
+/* ═══════════════════════════════════════════════════════
+   PERSIST PREFERENCES
+═══════════════════════════════════════════════════════ */
+function restorePreferences() {
+  const pi = document.getElementById('priorityInput');
+  const saved = localStorage.getItem('ZEUS_PRIORITY');
+  if (saved) pi.value = saved;
+  pi.addEventListener('input', e => localStorage.setItem('ZEUS_PRIORITY', e.target.value));
+}
+</script>
+</body>
+</html>
